@@ -1,3 +1,3 @@
 # Holding package
 
-This package name is not currently in use.
+This package name is reserved.
