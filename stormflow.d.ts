@@ -1,4 +1,14 @@
 declare module 'stormflow' {
+  interface Options {
+    dataDirectory?: string;
+    diskWrite?: boolean;
+    diskWriteThrottle?: number;
+    backupFiles?: boolean;
+    backupInterval?: number;
+    defaultFields?: boolean;
+    verbose?: boolean;
+  }
+
   interface SchemaField {
     type: string;
     required?: boolean;
@@ -31,7 +41,7 @@ declare module 'stormflow' {
     skippedWrites: { [key: string]: number };
   }
 
-  function start(options?: any): void;
+  function start(options?: Options): void;
 
   function model(collectionName: string, schema: SchemaDefinition): StormFlowModel;
 
