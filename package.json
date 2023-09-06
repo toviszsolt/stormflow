@@ -1,7 +1,76 @@
 {
   "name": "stormflow",
   "version": "0.1.1",
-  "description": "holding package",
-  "author": "Zsolt Tövis <tovis.zsolt@gmail.com>",
-  "license": "MIT"
+  "description": "StormFlow is a versatile Node.js data management library designed for efficient data management.",
+  "keywords": [
+    "stormflow",
+    "document",
+    "model",
+    "schema",
+    "query",
+    "nosql",
+    "nodb",
+    "data",
+    "database",
+    "db",
+    "data management",
+    "datastore",
+    "memory database",
+    "json database",
+    "mongodb",
+    "mongoose"
+  ],
+  "author": {
+    "name": "Zsolt Tovis",
+    "email": "tovis.zsolt@gmail.com",
+    "url": "https://toviszsolt.github.io/"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/toviszsolt"
+    },
+    {
+      "type": "paypal",
+      "url": "https://www.paypal.com/paypalme/toviszsolt"
+    }
+  ],
+  "homepage": "https://github.com/toviszsolt/stormflow",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toviszsolt/stormflow"
+  },
+  "bugs": {
+    "url": "https://github.com/toviszsolt/stormflow/issues"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./dis/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "watch": "rollup -c -w",
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.15",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "crc": "^4.3.2",
+    "express": "^4.18.2",
+    "rollup": "^3.28.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "zlib": "^1.0.5"
+  }
 }
