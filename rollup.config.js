@@ -22,6 +22,7 @@ module.exports = [
   {
     input: 'stormflow.js',
     output: [{ name: 'stormflow-bundle', file: `stormflow-bundle.js`, format: 'cjs' }],
-    plugins: [commonjs()],
+    plugins: [resolve(configResolve), commonjs()],
+    external: ['crc', 'zlib'],
   },
 ];
