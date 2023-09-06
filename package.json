@@ -13,10 +13,10 @@
     "data",
     "database",
     "db",
-    "data management",
+    "datamanagement",
     "datastore",
-    "memory database",
-    "json database",
+    "memorydatabase",
+    "jsondatabase",
     "mongodb",
     "mongoose"
   ],
