@@ -45,12 +45,12 @@
   },
   "license": "MIT",
   "type": "commonjs",
-  "main": "./dist/stromflow.js",
-  "types": "./dist/stromflow.d.ts",
+  "main": "./dist/stormflow.js",
+  "types": "./dist/stormflow.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/stromflow.js",
-      "require": "./dist/stromflow.cjs"
+      "import": "./dist/stormflow.js",
+      "require": "./dist/stormflow.cjs"
     }
   },
   "files": [
