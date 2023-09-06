@@ -37,7 +37,8 @@ essential tool for full-stack developers. -->
 
 This package includes both `ES modules` and `CommonJS` versions, so you can safely use both
 `require` and `import` statements in any environment. In the examples I'll use the `require` syntax,
-so don't be scared, feel free to use the `import` syntax if you like, that will work too.
+so don't be scared, feel free to use the `import` syntax if you like, that will work too. TypeScript
+support is also available.
 
 ## Getting Started
 
