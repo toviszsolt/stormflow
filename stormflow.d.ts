@@ -43,7 +43,7 @@ declare module 'stormflow' {
 
   function start(options?: Options): void;
 
-  function model(collectionName: string, schema: SchemaDefinition): StormFlowModel;
+  function model(collectionName: string, schema?: SchemaDefinition): StormFlowModel;
 
   function stats(): StormFlowStats;
 
