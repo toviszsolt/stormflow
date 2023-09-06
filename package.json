@@ -61,7 +61,8 @@
   },
   "scripts": {
     "watch": "rollup -c -w",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "publish": "yarn build && yarn publish"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",
