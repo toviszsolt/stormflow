@@ -2,12 +2,13 @@ const { terser } = require('rollup-plugin-terser');
 const resolve = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
+const copy = require('rollup-plugin-copy');
 
 const buildFolder = './dist';
 const configResolve = { preferBuiltins: true };
 const configTerser = { format: { comments: false } };
-
-const modulePlugins = [resolve(configResolve), commonjs(), json(), terser(configTerser)];
+const configCopy = { targets: [{ src: 'stormflow.d.ts', dest: buildFolder }] };
+const plugins = [resolve(configResolve), commonjs(), json(), terser(configTerser)];
 
 module.exports = [
   {
@@ -16,7 +17,7 @@ module.exports = [
       { name: 'stormflow-mjs', file: `${buildFolder}/stormflow.js`, format: 'es' },
       { name: 'stormflow-cjs', file: `${buildFolder}/stormflow.cjs`, format: 'cjs' },
     ],
-    plugins: modulePlugins,
+    plugins: [...plugins, copy(configCopy)],
   },
   {
     input: 'stormflow.js',
