@@ -2,6 +2,7 @@ const { defaultConfig, mergeConfig } = require('./lib/config');
 const { diskStats, initFileStorage } = require('./lib/storage');
 const { Schema } = require('./lib/shema');
 const model = require('./lib/model');
+const utils = require('./lib/utils');
 
 let init = false;
 
@@ -18,4 +19,5 @@ module.exports = {
   Schema,
   model,
   stats: diskStats,
+  utils,
 };

@@ -41,15 +41,26 @@ declare module 'stormflow' {
     skippedWrites: { [key: string]: number };
   }
 
+  interface StormFlowUtils {
+    unixNow(): number;
+    unixFromStr(dateStr: string): number;
+    unixToDateObj(unixTimestamp?: number): Date;
+    unixToDateStr(unixTimestamp: number, format: string): string;
+    deepClone<T>(obj: T): T;
+    uniqueId(): string;
+  }
+
   function start(options?: Options): void;
 
   function model(collectionName: string, schema?: SchemaDefinition): StormFlowModel;
 
   function stats(): StormFlowStats;
 
+  const utils: StormFlowUtils;
+
   const Schema: {
     (schemaObj: SchemaDefinition): SchemaDefinition;
   };
 
-  export { Schema, model, start, stats };
+  export { Schema, model, start, stats, utils };
 }
