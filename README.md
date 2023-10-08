@@ -302,16 +302,19 @@ const johnUsers = UserModel.find({ name: 'John' });
 In this example, we use a basic query to find all users whose name field matches the string 'John'.
 The UserModel.find() method will return an array of user objects that meet this condition.
 
-### Advanced Query
+### Comparison Query Operators
 
-You can create more complex queries by using operators like $lt, $lte, $gt, $gte, $in, and $regex.
-Here's how they work:
+You can create more complex queries by using operators like `$eq`, `$ne`, `$lt`, `$lte`, `$gt`,
+`$gte`, `$in`, `$nin` and `$regex`. Here's how they work:
 
+- `$eq` (Equal): Matches values that are equal to a specified value.
+- `$ne` (Not Equal): Matches values that are not equal to a specified value.
 - `$lt` (Less Than): Matches values less than the specified value.
 - `$lte` (Less Than or Equal): Matches values less than or equal to the specified value.
 - `$gt` (Greater Than): Matches values greater than the specified value.
 - `$gte` (Greater Than or Equal): Matches values greater than or equal to the specified value.
 - `$in` (In Array): Matches values that exist in the specified array.
+- `$nin` (Not In Array): Matches values that not exist in the specified array.
 - `$regex` (Regular Expression): Matches values using a regular expression pattern.
 
 #### Examples
@@ -335,11 +338,22 @@ const aNames = UserModel.find({ name: { $regex: '^A', $options: 'i' } });
 In these examples, we use advanced queries to find users based on various conditions, such as age
 range, email existence in an array, and names matching a regular expression pattern.
 
-### Logical Operators
+### Logical Query Operators
 
-You can also use logical operators like $or to combine multiple conditions within a single query.
-The $or operator accepts an array of query objects and returns data that satisfies at least one of
-the conditions.
+You can also use logical operators like `$and`, `$or`, `$not`, `$nor` to combine multiple conditions
+within a single query.
+
+- `$and`: the operator joins query clauses with a logical AND operator. It returns data that
+  satisfies all of the specified conditions within the query.
+- `$or`: the operator accepts an array of query objects and returns data that satisfies at least one
+  of the conditions. It's used when you want to match documents that meet any of the specified
+  conditions.
+- `$not`: the operator joins query clauses with a logical NOT operator. It returns data that doesn't
+  match the specified condition within the query. It's used to exclude documents that meet a certain
+  condition.
+- `$nor`: the operator joins query clauses with a logical NOR operator. It returns data that doesn't
+  satisfy any of the conditions within the array. It's useful when you want to exclude documents
+  that match any of the specified conditions.
 
 #### Example
 
