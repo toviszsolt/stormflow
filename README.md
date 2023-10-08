@@ -324,7 +324,7 @@ You can create more complex queries by using operators like `$eq`, `$ne`, `$lt`,
 const youngUsers = UserModel.find({ age: { $lt: 30 } });
 
 // Find users with ages between 25 and 35
-const midAgeUsers = UserModel.find({ age: { $gte: 25, $lte: 35 } });
+const midAgeUsers = UserModel.find({ $and: [{ age: { $gt: 25 } }, { age: { $lt: 35 } }] });
 
 // Find users with specific emails
 const specificEmailUsers = UserModel.find({
