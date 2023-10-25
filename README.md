@@ -272,6 +272,8 @@ Returns an object with the following methods:
 - `find(query)`: Find items in the collection based on a query.
 - `findById(id)`: Find an item by its ID.
 - `findOne(query)`: Find the first item matching the query.
+- `count(query)`: Count the number of items matching the query.
+- `exists(query)`: Check items in the collection based on a query.
 - `update(query, updates)`: Update items in the collection.
 - `deleteOne(query)`: Delete one item matching the query.
 - `deleteMany(query)`: Delete multiple items matching the query.

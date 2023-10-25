@@ -31,6 +31,8 @@ declare module 'stormflow' {
     find(query: any): Promise<any[]>;
     findById(id: string): Promise<any>;
     findOne(query: any): Promise<any>;
+    count(query: any): Promise<any>;
+    exists(query: any): Promise<any>;
     update(query: any, updates: any): Promise<any | any[]>;
     deleteOne(query: any): Promise<any>;
     deleteMany(query: any): Promise<any[]>;
