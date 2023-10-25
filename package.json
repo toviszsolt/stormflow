@@ -1,6 +1,6 @@
 {
   "name": "stormflow",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "StormFlow is a versatile Node.js data management library designed for efficient data management.",
   "keywords": [
     "stormflow",
