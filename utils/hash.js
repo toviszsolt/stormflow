@@ -1,7 +1,7 @@
 const { crc32 } = require('crc');
 
 /**
- * Generates a crc32 like unique id.
+ * Generates a unique crc32 hash.
  * @returns {string} A unique id.
  */
 const uniqueId = () => {
