@@ -1,28 +1,30 @@
-const { terser } = require('rollup-plugin-terser');
+// const { terser } = require('rollup-plugin-terser');
 const resolve = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
-const copy = require('rollup-plugin-copy');
 
 const buildFolder = './dist';
 const configResolve = { preferBuiltins: true };
-const configTerser = { format: { comments: false } };
-const configCopy = { targets: [{ src: 'stormflow.d.ts', dest: buildFolder }] };
-const plugins = [resolve(configResolve), commonjs(), json(), terser(configTerser)];
+// const configTerser = { format: { comments: false } };
+const basePlugins = [resolve(configResolve), commonjs(), json()];
 
 module.exports = [
   {
     input: 'stormflow.js',
     output: [
-      { name: 'stormflow-mjs', file: `${buildFolder}/stormflow.js`, format: 'es' },
-      { name: 'stormflow-cjs', file: `${buildFolder}/stormflow.cjs`, format: 'cjs' },
+      {
+        name: 'stormflow-mjs',
+        file: `${buildFolder}/stormflow.js`,
+        format: 'es',
+        generatedCode: 'es2015',
+      },
+      {
+        name: 'stormflow-cjs',
+        file: `${buildFolder}/stormflow.cjs`,
+        format: 'cjs',
+        generatedCode: 'es2015',
+      },
     ],
-    plugins: [...plugins, copy(configCopy)],
-  },
-  {
-    input: 'stormflow.js',
-    output: [{ name: 'stormflow-bundle', file: `stormflow-bundle.js`, format: 'cjs' }],
-    plugins: [resolve(configResolve), commonjs()],
-    external: ['crc', 'zlib'],
+    plugins: [...basePlugins],
   },
 ];
