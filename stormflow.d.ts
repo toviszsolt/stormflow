@@ -1,3 +1,6 @@
+/**
+ * THIS FILE IS DEPRECIATED AND WILL BE REMOVED
+ */
 declare module 'stormflow' {
   interface Options {
     dataDirectory?: string;
@@ -49,6 +52,7 @@ declare module 'stormflow' {
     unixToDateObj(unixTimestamp?: number): Date;
     unixToDateStr(unixTimestamp: number, format: string): string;
     deepClone<T>(obj: T): T;
+    Serialize<T>(obj: T): T;
     uniqueId(): string;
   }
 
