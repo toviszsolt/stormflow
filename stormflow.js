@@ -1,21 +1,36 @@
-const { defaultConfig, mergeConfig } = require('./lib/config');
+const model = require('./lib/model');
+const { defaultConfig, getConfig, setConfig } = require('./lib/config');
 const { diskStats, initFileStorage } = require('./lib/storage');
 const { Schema } = require('./lib/shema');
-const model = require('./lib/model');
-const utils = require('./lib/utils');
+const utils = {
+  ...require('./utils/hash'),
+  ...require('./utils/object'),
+  ...require('./utils/type'),
+  ...require('./utils/unixtime'),
+};
 
 let init = false;
 
+/**
+ * Initializes Stormflow with the given options.
+ * @param {object} [options=defaultConfig] - The options to use for initializing Stormflow.
+ * @returns {void}
+ */
 const start = (options = defaultConfig) => {
   if (!init) {
     init = true;
-    mergeConfig(options);
+    setConfig(options);
     initFileStorage();
+  } else if (getConfig().strict) {
+    const msg = 'Stormflow is already initialized.';
+    throw new Error(msg);
   }
 };
 
 module.exports = {
   start,
+  getConfig,
+  setConfig,
   Schema,
   model,
   stats: diskStats,
