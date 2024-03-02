@@ -1,7 +1,10 @@
-/samples/
-/node_modules/
+/coverage/
 /data*/
 /dist/
+/node_modules/
+/samples/
 .env
 .env*
-*bundle*
+
+# stryker temp files
+.stryker-tmp
