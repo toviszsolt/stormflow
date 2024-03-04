@@ -1,9 +1,11 @@
 /**
  * Serialize an object
  * @param {object} obj The object to serialize
- * @returns {string} The serialized object
+ * @returns {*} The serialized object
  */
-const objSerialize = (obj) => JSON.parse(JSON.stringify(obj || null));
+const objSerialize = (obj) => {
+  return obj === undefined ? undefined : JSON.parse(JSON.stringify(obj));
+};
 
 /**
  * Deep clone an object
