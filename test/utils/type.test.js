@@ -1,7 +1,7 @@
 const { getType } = require('../../utils/type');
 
-describe('getType function', () => {
-  it('should return correct type for different values', () => {
+describe('getType', () => {
+  it('return correct type for different values', () => {
     expect(getType(null)).toBe('null');
     expect(getType([])).toBe('array');
     expect(getType(new Date())).toBe('date');
