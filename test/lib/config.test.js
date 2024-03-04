@@ -22,7 +22,7 @@ describe('defaultConfig', () => {
 });
 
 describe('getConfig', () => {
-  it('returns the Config object', () => {
+  it('return the Config object', () => {
     expect(getConfig()).toEqual(config);
   });
 });
@@ -33,7 +33,7 @@ describe('setConfig', () => {
     Object.keys(config).forEach((key) => delete config[key]);
   });
 
-  it('merges default config with provided options', () => {
+  it('merge default config with provided options', () => {
     const options = { diskWrite: false, backupInterval: 5 };
 
     setConfig(options);
@@ -44,17 +44,17 @@ describe('setConfig', () => {
     });
   });
 
-  it('throws error for invalid options', () => {
+  it('throw error for invalid options', () => {
     expect(() => setConfig('invalid')).toThrow();
     expect(() => setConfig({ invalidKey: true })).toThrow();
   });
 
-  it('throws error for invalid option value (diskWriteThrottle)', () => {
+  it('throw error for invalid option value (diskWriteThrottle)', () => {
     expect(() => setConfig({ diskWriteThrottle: 40 })).toThrow();
     expect(() => setConfig({ diskWriteThrottle: 3010 })).toThrow();
   });
 
-  it('throws error for invalid option value (backupInterval)', () => {
+  it('throw error for invalid option value (backupInterval)', () => {
     expect(() => setConfig({ backupInterval: 0 })).toThrow();
     expect(() => setConfig({ backupInterval: 25 })).toThrow();
   });

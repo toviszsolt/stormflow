@@ -1,7 +1,7 @@
 const { uniqueId } = require('../../utils/hash');
 
 describe('uniqueId', () => {
-  it('generates a unique id', () => {
+  it('generate a unique id', () => {
     const id1 = uniqueId();
     const id2 = uniqueId();
     expect(id1).not.toBe(id2);

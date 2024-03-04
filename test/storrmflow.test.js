@@ -7,7 +7,7 @@ describe('stormflow', () => {
     expect(() => db.start()).toThrow();
   });
 
-  it('should not re-init without throw error', () => {
+  it('does not re-init without throw error', () => {
     db.setConfig({ strict: false });
     expect(() => db.start()).not.toThrow();
     db.setConfig({ strict: true });
