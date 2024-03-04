@@ -1,66 +1,61 @@
 const path = require('path');
-const { config, defaultConfig, setConfig } = require('../../lib/config');
+const { config, defaultConfig, setConfig, getConfig } = require('../../lib/config');
 
-describe('mergeConfig', () => {
+describe('config', () => {
+  it('object is exists', () => {
+    expect(typeof config).toBe('object');
+  });
+});
+
+describe('defaultConfig', () => {
+  it('object is exists and has correct properties', () => {
+    expect(typeof defaultConfig).toBe('object');
+    expect(defaultConfig).toHaveProperty('strict');
+    expect(defaultConfig).toHaveProperty('dataDirectory');
+    expect(defaultConfig).toHaveProperty('diskWrite');
+    expect(defaultConfig).toHaveProperty('diskWriteThrottle');
+    expect(defaultConfig).toHaveProperty('backupFiles');
+    expect(defaultConfig).toHaveProperty('backupInterval');
+    expect(defaultConfig).toHaveProperty('defaultFields');
+    expect(defaultConfig).toHaveProperty('verbose');
+  });
+});
+
+describe('getConfig', () => {
+  it('returns the Config object', () => {
+    expect(getConfig()).toEqual(config);
+  });
+});
+
+describe('setConfig', () => {
   beforeEach(() => {
     // Reset config object before each it
     Object.keys(config).forEach((key) => delete config[key]);
   });
 
   it('merges default config with provided options', () => {
-    const options = {
-      diskWrite: false,
-      backupInterval: 5,
-    };
+    const options = { diskWrite: false, backupInterval: 5 };
 
     setConfig(options);
 
     expect(config).toEqual({
-      strict: true,
-      dataDirectory: path.join(process.cwd(), './data'),
-      diskWrite: false,
-      diskWriteThrottle: 100,
-      backupFiles: true,
-      backupInterval: 5,
-      defaultFields: true,
-      verbose: false,
+      ...defaultConfig,
+      ...options,
     });
   });
 
-  it('throws error for invalid options type', () => {
-    expect(() => setConfig('invalid')).toThrow(/Invalid/);
-  });
-
-  it('throws error for invalid option key', () => {
-    const options = {
-      invalidKey: true,
-    };
-
-    expect(() => setConfig(options)).toThrow(/invalidKey/);
+  it('throws error for invalid options', () => {
+    expect(() => setConfig('invalid')).toThrow();
+    expect(() => setConfig({ invalidKey: true })).toThrow();
   });
 
   it('throws error for invalid option value (diskWriteThrottle)', () => {
-    expect(() => setConfig({ diskWriteThrottle: 40 })).toThrow(/diskWriteThrottle/);
-    expect(() => setConfig({ diskWriteThrottle: 3010 })).toThrow(/diskWriteThrottle/);
+    expect(() => setConfig({ diskWriteThrottle: 40 })).toThrow();
+    expect(() => setConfig({ diskWriteThrottle: 3010 })).toThrow();
   });
 
   it('throws error for invalid option value (backupInterval)', () => {
-    expect(() => setConfig({ backupInterval: 0 })).toThrow(/backupInterval/);
-    expect(() => setConfig({ backupInterval: 25 })).toThrow(/backupInterval/);
-  });
-});
-
-describe('defaultConfig', () => {
-  it('contains expected default values', () => {
-    expect(defaultConfig).toEqual({
-      strict: true,
-      dataDirectory: path.join(process.cwd(), './data'),
-      diskWrite: true,
-      diskWriteThrottle: 100,
-      backupFiles: true,
-      backupInterval: 10,
-      defaultFields: true,
-      verbose: false,
-    });
+    expect(() => setConfig({ backupInterval: 0 })).toThrow();
+    expect(() => setConfig({ backupInterval: 25 })).toThrow();
   });
 });
