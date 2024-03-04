@@ -7,13 +7,13 @@ const {
 } = require('../../utils/object');
 
 describe('objSerialize', () => {
-  it('serialize an object correctly', () => {
+  it('serialize object correctly', () => {
     const obj = { a: 1, b: { c: 2 } };
     const serialized = objSerialize(obj);
     expect(serialized).toEqual(obj);
   });
 
-  it('serialize an array correctly', () => {
+  it('serialize array correctly', () => {
     const obj = [1, null, 2];
     const serialized = objSerialize(obj);
     expect(serialized).toEqual(obj);
@@ -33,7 +33,7 @@ describe('objSerialize', () => {
 });
 
 describe('objClone', () => {
-  it('clone an object correctly', () => {
+  it('clone object correctly', () => {
     const obj = { a: 1, b: { c: 2 } };
     const cloned = objClone(obj);
     expect(cloned).toEqual(obj);
@@ -47,7 +47,7 @@ describe('objClone', () => {
     expect(cloned).not.toBe(obj); // Ensure deep cloning
   });
 
-  it('clone an array correctly', () => {
+  it('clone array correctly', () => {
     const obj = [1, 2, 3];
     const cloned = objClone(obj);
     expect(cloned).toEqual(obj);
@@ -66,14 +66,14 @@ describe('objClone', () => {
     expect(objClone(undefined)).toBeUndefined();
   });
 
-  it('clone a primitives correctly', () => {
+  it('clone primitives correctly', () => {
     expect(objClone(123)).toBe(123);
     expect(objClone('it')).toBe('it');
     expect(objClone(true)).toBe(true);
     expect(objClone(false)).toBe(false);
   });
 
-  it('clone object with only own properties', () => {
+  it('clone object with own properties only', () => {
     const parent = { name: 'John', age: 40 };
     const child = Object.create(parent);
     child.gender = 'male';
@@ -84,19 +84,19 @@ describe('objClone', () => {
     expect(cloned).not.toBe(child);
   });
 
-  it('does not clone a function', () => {
+  it('does not clone function', () => {
     const func = () => {};
     const cloned = objClone(func);
     expect(cloned).toEqual(func);
   });
 
-  it('does not clone a Date object', () => {
+  it('does not clone Date object', () => {
     const date = new Date();
     const cloned = objClone(date);
     expect(cloned).toEqual({});
   });
 
-  it('does not clone a RegExp object', () => {
+  it('does not clone RegExp object', () => {
     const regex = /abc/g;
     const cloned = objClone(regex);
     expect(cloned).toEqual({});
@@ -104,7 +104,7 @@ describe('objClone', () => {
 });
 
 describe('objTraverse', () => {
-  it('traverse through an object correctly', () => {
+  it('traverse through object correctly', () => {
     const obj = { a: 1, b: { c: 2 } };
     const mockCallback = jest.fn();
     objTraverse(obj, mockCallback);
@@ -119,7 +119,7 @@ describe('objTraverse', () => {
 });
 
 describe('objPathResolve', () => {
-  it('resolve paths correctly in an object', () => {
+  it('resolve object paths correctly', () => {
     const obj = { a: { b: { c: 123 } } };
     expect(objPathResolve(obj, 'a.b.c')).toBe(123);
   });
@@ -137,13 +137,13 @@ describe('objPathResolve', () => {
 });
 
 describe('objPathSet', () => {
-  it('set value in object at given path', () => {
+  it('set object property corretly', () => {
     const obj = {};
     objPathSet(obj, 'a.b.c', 123);
     expect(obj).toEqual({ a: { b: { c: 123 } } });
   });
 
-  it('overwrite existing value at given path', () => {
+  it('overwrite existing value correctly', () => {
     const obj = { a: { b: { c: 123 } } };
     objPathSet(obj, 'a.b.c', 456);
     expect(obj).toEqual({ a: { b: { c: 456 } } });
