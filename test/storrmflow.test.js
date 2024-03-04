@@ -3,7 +3,7 @@ const db = require('../stormflow');
 db.start({ diskWrite: false });
 
 describe('stormflow', () => {
-  it('should not re-init and throw error', () => {
+  it('does not re-init and throw error', () => {
     expect(() => db.start()).toThrow();
   });
 
