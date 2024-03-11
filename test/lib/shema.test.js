@@ -1,8 +1,9 @@
-const { setConfig } = require('../../lib/config');
 const { Schema, applySchema } = require('../../lib/shema');
 const db = require('../../stormflow');
 
 db.start({ diskWrite: false });
+
+const setStrictMode = (strict) => db.setConfig({ strict });
 
 describe('Schema', () => {
   it('throw error for invalid or missing schema definition', () => {
@@ -70,52 +71,91 @@ describe('Schema', () => {
 });
 
 describe('applySchema', () => {
-  it('handle undefined value in source object', () => {
+  afterEach(() => setStrictMode(true));
+
+  it('handle undefined value of source object', () => {
     const schema = Schema({ name: String });
-    expect(() => applySchema(undefined, schema)).toThrow();
+    const fn = () => applySchema(undefined, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toBeUndefined();
   });
 
   it('handle invalid object type in schema definition', () => {
     const source = { name: 'John' };
-    expect(() => applySchema(source, 'invalid')).toThrow();
+    const fn = () => applySchema(source, 'invalid');
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toBeUndefined();
   });
 
   it('return undefined if no schema provided', () => {
     const source = { name: 'John', age: 30 };
-    expect(() => applySchema(source)).toThrow();
+    const fn = () => applySchema(source);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toBeUndefined();
   });
 
   it('throw error for invalid source array type', () => {
     const schema = Schema({ tags: [String] });
-    expect(() => applySchema({ tags: 'example' }, schema)).toThrow();
+    const fn = () => applySchema({ tags: 'example' }, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({ tags: [] });
   });
 
   it('throw error for invalid source object type', () => {
     const schema = Schema({ tags: { a: String, b: Number } });
-    expect(() => applySchema({ tags: 'example' }, schema)).toThrow();
+    const fn = () => applySchema({ tags: 'example' }, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({});
   });
 
   it('throw error for invalid source string type', () => {
     const schema = Schema({ tags: String });
-    expect(() => applySchema({ tags: 123 }, schema)).toThrow();
+    const fn = () => applySchema({ tags: 123 }, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({ tags: '123' });
   });
 
   it('throw error for invalid source number type', () => {
     const schema = Schema({ tags: Number });
-    expect(() => applySchema({ tags: '123' }, schema)).toThrow();
+    const fn = () => applySchema({ tags: '123' }, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({ tags: 123 });
   });
 
   it('throw error for invalid source boolean type', () => {
     const schema = Schema({ tags: Boolean });
-    expect(() => applySchema({ tags: '123' }, schema)).toThrow();
+    const fn = () => applySchema({ tags: '123' }, schema);
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({ tags: true });
   });
 
   it('throw error for invalid source date type', () => {
     const schema1 = Schema({ tags: Date });
-    expect(() => applySchema({ tags: 'not a date' }, schema1)).toThrow();
-
     const schema2 = Schema({ tags: { type: Date, default: Date.length } });
-    expect(() => applySchema({ tags: true }, schema2)).toThrow();
+    const fn1 = () => applySchema({ tags: 'not a date' }, schema1);
+    const fn2 = () => applySchema({ tags: true }, schema2);
+    expect(fn1).toThrow();
+    expect(fn2).toThrow();
+
+    setStrictMode(false);
+    expect(fn1()).toEqual({ tags: 0 });
+    expect(fn2()).toEqual({ tags: 0 });
   });
 
   it('apply schema to source object', () => {
