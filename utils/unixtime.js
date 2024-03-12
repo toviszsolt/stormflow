@@ -36,14 +36,13 @@ const timeToDateStr = (unixTimestamp, format = '%Y-%M-%D %H:%I:%S') => {
   const minutes = date.getMinutes();
   const seconds = date.getSeconds();
   const firstDayOfYear = new Date(year, 0, 1);
-  const daysSinceFirstDay = Math.floor(
-    (date.getTime() - firstDayOfYear.getTime()) / (24 * 60 * 60 * 1000),
-  );
+  const daysSinceFirstDay = Math.floor((date.getTime() - firstDayOfYear.getTime()) / (24 * 60 * 60 * 1000));
   const weekNumber = Math.ceil(daysSinceFirstDay / 7);
   const tokens = {
-    offset: `GMT${date.getTimezoneOffset() > 0 ? '-' : '+'}${String(
-      Math.abs(date.getTimezoneOffset() / 60),
-    ).padStart(2, '0')}:${String(Math.abs(date.getTimezoneOffset() % 60)).padStart(2, '0')}`,
+    offset: `GMT${date.getTimezoneOffset() > 0 ? '-' : '+'}${String(Math.abs(date.getTimezoneOffset() / 60)).padStart(
+      2,
+      '0',
+    )}:${String(Math.abs(date.getTimezoneOffset() % 60)).padStart(2, '0')}`,
     mer: hours < 12 ? 'a.m.' : 'p.m',
     MER: hours < 12 ? 'A.M.' : 'P.M',
     mh: hours12,

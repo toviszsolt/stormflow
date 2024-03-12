@@ -4,10 +4,9 @@ A Lightweight Data Modeling and Storage Library
 
 ## Introduction
 
-StormFlow is a lightweight data modeling and storage library for Node.js. It provides a simple and
-flexible way to create, query, and manage data collections with schemas. StormFlow is particularly
-well-suited for small to medium-sized projects where you need a data storage solution without the
-complexity of a full-fledged database.
+StormFlow is a lightweight data modeling and storage library for Node.js. It provides a simple and flexible way to
+create, query, and manage data collections with schemas. StormFlow is particularly well-suited for small to medium-sized
+projects where you need a data storage solution without the complexity of a full-fledged database.
 
 <!-- StormFlow is a versatile Node.js data management library designed for efficient data handling and
 persistence. It provides a robust framework for creating, updating, querying, and storing data
@@ -17,28 +16,24 @@ essential tool for full-stack developers. -->
 
 ## Features
 
-- **Data Modeling:** Define data schemas using the Schema module to ensure data consistency and
-  structure.
+- **Data Modeling:** Define data schemas using the Schema module to ensure data consistency and structure.
 
-- **Data Collection:** Create and manage collections of data with CRUD (Create, Read, Update,
-  Delete) operations.
+- **Data Collection:** Create and manage collections of data with CRUD (Create, Read, Update, Delete) operations.
 
-- **Middleware Support:** Add custom pre and post middleware functions to intercept and modify data
-  operations.
+- **Middleware Support:** Add custom pre and post middleware functions to intercept and modify data operations.
 
 - **Querying:** Use powerful queries to retrieve data from collections based on criteria.
 
-- **Data Persistence:** StormFlow supports data persistence to disk, allowing you to store and
-  retrieve data even after the application restarts.
+- **Data Persistence:** StormFlow supports data persistence to disk, allowing you to store and retrieve data even after
+  the application restarts.
 
 - **References:** Easily handle references between objects in your data model.
 
 ## Compatibility
 
-This package includes both `ES modules` and `CommonJS` versions, so you can safely use both
-`require` and `import` statements in any environment. In the examples I'll use the `require` syntax,
-so don't be scared, feel free to use the `import` syntax if you like, that will work too. TypeScript
-support is also available.
+This package includes both `ES modules` and `CommonJS` versions, so you can safely use both `require` and `import`
+statements in any environment. In the examples I'll use the `require` syntax, so don't be scared, feel free to use the
+`import` syntax if you like, that will work too. TypeScript support is also available.
 
 ## Getting Started
 
@@ -56,8 +51,8 @@ npm i stormflow
 
 ### Initializing StormFlow
 
-Before using StormFlow, you need to initialize it with your configuration. Here's an example of how
-to start StormFlow with default options:
+Before using StormFlow, you need to initialize it with your configuration. Here's an example of how to start StormFlow
+with default options:
 
 ```js
 const db = require('stormflow');
@@ -69,8 +64,8 @@ You can also provide custom configuration options when initializing StormFlow.
 
 ### Creating Models
 
-StormFlow allows you to define data models with schemas. Schemas help validate and structure your
-data. Here's an example of creating a model with a schema:
+StormFlow allows you to define data models with schemas. Schemas help validate and structure your data. Here's an
+example of creating a model with a schema:
 
 ```js
 const db = require('stormflow');
@@ -87,8 +82,8 @@ const userSchema = db.Schema({
 const User = db.model('user', userSchema});
 ```
 
-CRUD Operations Once you've defined a model, you can perform CRUD (Create, Read, Update, Delete)
-operations on your data. Here are some examples:
+CRUD Operations Once you've defined a model, you can perform CRUD (Create, Read, Update, Delete) operations on your
+data. Here are some examples:
 
 ```js
 // Create a new user
@@ -106,8 +101,8 @@ const deletedUser = await User.deleteOne({ _id: newUser._id });
 
 ### Middleware
 
-StormFlow supports middleware functions that can be executed before or after CRUD operations. You
-can register middleware functions for your models. For example:
+StormFlow supports middleware functions that can be executed before or after CRUD operations. You can register
+middleware functions for your models. For example:
 
 ```js
 User.pre('create', async (user, next) => {
@@ -125,8 +120,8 @@ User.post('update', async (user, next) => {
 
 ## File-Based Storage
 
-StormFlow supports file-based storage, allowing you to persist your data. By default, StormFlow will
-store data in a 'data' directory in your project's root.
+StormFlow supports file-based storage, allowing you to persist your data. By default, StormFlow will store data in a
+'data' directory in your project's root.
 
 ## Statistics
 
@@ -176,8 +171,8 @@ Creates a schema for data models. Pass an object defining the schema structure.
 
 #### Parameters
 
-- `schemaObj` (Object): An object defining the schema structure. The keys represent field names, and
-  the values define field constraints.
+- `schemaObj` (Object): An object defining the schema structure. The keys represent field names, and the values define
+  field constraints.
 
 #### Returns
 
@@ -225,15 +220,12 @@ Creates a data model for a collection based on the provided schema.
 
 #### Parameters
 
-- `collectionName` (String): The name of the collection. It is used to identify the collection and
-  its associated data.
-- `schema` (Object): The schema for the collection, defining the structure and constraints of its
-  data.
+- `collectionName` (String): The name of the collection. It is used to identify the collection and its associated data.
+- `schema` (Object): The schema for the collection, defining the structure and constraints of its data.
 
 #### Returns
 
-An object with methods for performing CRUD (Create, Read, Update, Delete) operations on the
-collection's data.
+An object with methods for performing CRUD (Create, Read, Update, Delete) operations on the collection's data.
 
 #### Example
 
@@ -280,19 +272,17 @@ Returns an object with the following methods:
 
 ### Query Parameter
 
-The query parameter is an essential part of data retrieval when using the functions provided by the
-model object. It allows you to filter and search for specific data items within a collection based
-on defined criteria.
+The query parameter is an essential part of data retrieval when using the functions provided by the model object. It
+allows you to filter and search for specific data items within a collection based on defined criteria.
 
 #### Basic Query
 
-A basic query consists of a JavaScript object where each key represents a field in the data, and the
-corresponding value is the condition you want to apply to that field. Here's a breakdown:
+A basic query consists of a JavaScript object where each key represents a field in the data, and the corresponding value
+is the condition you want to apply to that field. Here's a breakdown:
 
 - Field Key: This should be a string that matches a field name in your data schema.
-- Condition Value: The value associated with the field key defines the condition for filtering data.
-  It can be of various types, such as strings, numbers, booleans, or objects, depending on your
-  schema.
+- Condition Value: The value associated with the field key defines the condition for filtering data. It can be of
+  various types, such as strings, numbers, booleans, or objects, depending on your schema.
 
 #### Example
 
@@ -301,13 +291,13 @@ corresponding value is the condition you want to apply to that field. Here's a b
 const johnUsers = UserModel.find({ name: 'John' });
 ```
 
-In this example, we use a basic query to find all users whose name field matches the string 'John'.
-The UserModel.find() method will return an array of user objects that meet this condition.
+In this example, we use a basic query to find all users whose name field matches the string 'John'. The UserModel.find()
+method will return an array of user objects that meet this condition.
 
 ### Comparison Query Operators
 
-You can create more complex queries by using operators like `$eq`, `$ne`, `$lt`, `$lte`, `$gt`,
-`$gte`, `$in`, `$nin` and `$regex`. Here's how they work:
+You can create more complex queries by using operators like `$eq`, `$ne`, `$lt`, `$lte`, `$gt`, `$gte`, `$in`, `$nin`
+and `$regex`. Here's how they work:
 
 - `$eq` (Equal): Matches values that are equal to a specified value.
 - `$ne` (Not Equal): Matches values that are not equal to a specified value.
@@ -337,25 +327,23 @@ const specificEmailUsers = UserModel.find({
 const aNames = UserModel.find({ name: { $regex: '^A', $options: 'i' } });
 ```
 
-In these examples, we use advanced queries to find users based on various conditions, such as age
-range, email existence in an array, and names matching a regular expression pattern.
+In these examples, we use advanced queries to find users based on various conditions, such as age range, email existence
+in an array, and names matching a regular expression pattern.
 
 ### Logical Query Operators
 
-You can also use logical operators like `$and`, `$or`, `$not`, `$nor` to combine multiple conditions
-within a single query.
+You can also use logical operators like `$and`, `$or`, `$not`, `$nor` to combine multiple conditions within a single
+query.
 
-- `$and`: the operator joins query clauses with a logical AND operator. It returns data that
-  satisfies all of the specified conditions within the query.
-- `$or`: the operator accepts an array of query objects and returns data that satisfies at least one
-  of the conditions. It's used when you want to match documents that meet any of the specified
+- `$and`: the operator joins query clauses with a logical AND operator. It returns data that satisfies all of the
+  specified conditions within the query.
+- `$or`: the operator accepts an array of query objects and returns data that satisfies at least one of the conditions.
+  It's used when you want to match documents that meet any of the specified conditions.
+- `$not`: the operator joins query clauses with a logical NOT operator. It returns data that doesn't match the specified
+  condition within the query. It's used to exclude documents that meet a certain condition.
+- `$nor`: the operator joins query clauses with a logical NOR operator. It returns data that doesn't satisfy any of the
+  conditions within the array. It's useful when you want to exclude documents that match any of the specified
   conditions.
-- `$not`: the operator joins query clauses with a logical NOT operator. It returns data that doesn't
-  match the specified condition within the query. It's used to exclude documents that meet a certain
-  condition.
-- `$nor`: the operator joins query clauses with a logical NOR operator. It returns data that doesn't
-  satisfy any of the conditions within the array. It's useful when you want to exclude documents
-  that match any of the specified conditions.
 
 #### Example
 
@@ -366,23 +354,21 @@ const youngOrElderUsers = UserModel.find({
 });
 ```
 
-In this example, we use the $or operator to find users who are either younger than 25 or older
-than 40.
+In this example, we use the $or operator to find users who are either younger than 25 or older than 40.
 
-These query options provide powerful filtering capabilities for your data, allowing you to retrieve
-specific records that meet your criteria efficiently.
+These query options provide powerful filtering capabilities for your data, allowing you to retrieve specific records
+that meet your criteria efficiently.
 
 #### Notes:
 
-- When using multiple conditions in a query, the logical operators like $or help create complex
-  queries to find data that matches any of the conditions.
-- Combining basic and advanced queries allows for fine-grained data retrieval based on your schema's
-  structure and the specific requirements of your application.
-- Always refer to your schema definition to ensure that the field names and types in your query
-  match the schema's structure.
+- When using multiple conditions in a query, the logical operators like $or help create complex queries to find data
+  that matches any of the conditions.
+- Combining basic and advanced queries allows for fine-grained data retrieval based on your schema's structure and the
+  specific requirements of your application.
+- Always refer to your schema definition to ensure that the field names and types in your query match the schema's
+  structure.
 
-  This concludes the documentation on how the query parameter works when using the model functions
-  for data querying.
+  This concludes the documentation on how the query parameter works when using the model functions for data querying.
 
 ## stats()
 

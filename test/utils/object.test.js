@@ -1,10 +1,4 @@
-const {
-  objSerialize,
-  objClone,
-  objTraverse,
-  objPathResolve,
-  objPathSet,
-} = require('../../utils/object');
+const { objSerialize, objClone, objTraverse, objPathResolve, objPathSet } = require('../../utils/object');
 
 describe('objSerialize', () => {
   it('serialize object correctly', () => {
