@@ -129,11 +129,14 @@ describe('applySchema', () => {
 
   it('throw error for invalid source number type', () => {
     const schema = Schema({ tags: Number });
-    const fn = () => applySchema({ tags: '123' }, schema);
-    expect(fn).toThrow();
+    const fn1 = () => applySchema({ tags: '123' }, schema);
+    const fn2 = () => applySchema({ tags: 'not a nubmer' }, schema);
+    expect(fn1).toThrow();
+    expect(fn2).toThrow();
 
     setStrictMode(false);
-    expect(fn()).toEqual({ tags: 123 });
+    expect(fn1()).toEqual({ tags: 123 });
+    expect(fn2()).toEqual({ tags: 0 });
   });
 
   it('throw error for invalid source boolean type', () => {
