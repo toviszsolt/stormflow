@@ -1,5 +1,5 @@
 const model = require('./lib/model');
-const { defaultConfig, getConfig, setConfig } = require('./lib/config');
+const { defaultConfig, config, getConfig, setConfig } = require('./lib/config');
 const { diskStats, initFileStorage } = require('./lib/storage');
 const { Schema } = require('./lib/shema');
 const utils = {
@@ -21,7 +21,7 @@ const start = (options = defaultConfig) => {
     init = true;
     setConfig(options);
     initFileStorage();
-  } else if (getConfig().strict) {
+  } else if (config.strict) {
     const msg = 'Stormflow is already initialized.';
     throw new Error(msg);
   }

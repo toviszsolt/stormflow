@@ -1,4 +1,3 @@
-const path = require('path');
 const { config, defaultConfig, setConfig, getConfig } = require('../../lib/config');
 
 describe('config', () => {
