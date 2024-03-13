@@ -46,6 +46,7 @@ describe('setConfig', () => {
   it('throw error for invalid options', () => {
     expect(() => setConfig('invalid')).toThrow();
     expect(() => setConfig({ invalidKey: true })).toThrow();
+    expect(() => setConfig({ verbose: 'not boolean' })).toThrow();
   });
 
   it('throw error for invalid option value (diskWriteThrottle)', () => {
