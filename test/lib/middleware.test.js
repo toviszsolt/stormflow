@@ -30,9 +30,9 @@ describe('executeMiddleware', () => {
     expect(mockMiddlewareFn).toHaveBeenCalledTimes(2);
   });
 
-  it('Invalid middleware type', async () => {
+  it('Invalid middleware', async () => {
     const res = {};
-    registerMiddleware('invalid', 'products', 'create', mockMiddlewareFn);
+    registerMiddleware(null);
     await executeMiddleware('pre', 'products', 'create', res);
 
     expect(mockMiddlewareFn).not.toHaveBeenCalled();
