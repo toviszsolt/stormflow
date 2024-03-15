@@ -4,5 +4,5 @@
     "target": "ESNext",
     "checkJs": true
   },
-  "exclude": ["node_modules", "dist", "coverage", "samples", "test"]
+  "exclude": ["node_modules", "dist", "coverage"]
 }
