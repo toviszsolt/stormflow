@@ -1,23 +1,25 @@
+const { setConfig } = require('../../lib/config');
 const { resolveRefs } = require('../../lib/refs');
-const db = require('../../stormflow');
+const { Schema } = require('../../lib/shema');
+const model = require('../../lib/model');
 
-db.start({ diskWrite: false });
+setConfig({ diskWrite: false });
 
-const schemCategory = db.Schema({ name: String });
-const schemaColor = db.Schema({ name: String, category: { $ref: 'categories' } });
-const schemaItem = db.Schema({ colors: [{ $ref: 'colors' }], badRef: { $ref: 'nonExists' } });
+const schemCategory = Schema({ name: String });
+const schemaColor = Schema({ name: String, category: { $ref: 'categories' } });
+const schemaItem = Schema({ colors: [{ $ref: 'colors' }], badRef: { $ref: 'nonExists' } });
 
-const Category = db.model('categories', schemCategory);
-const Color = db.model('colors', schemaColor);
-const Item = db.model('items', schemaItem);
+const Category = model('categories', schemCategory);
+const Color = model('colors', schemaColor);
+const Item = model('items', schemaItem);
+
+beforeEach(() => {
+  Category.deleteMany({});
+  Color.deleteMany({});
+  Item.deleteMany({});
+});
 
 describe('resolveRefs', () => {
-  afterEach(() => {
-    Category.deleteMany({});
-    Color.deleteMany({});
-    Item.deleteMany({});
-  });
-
   it('resolve references', async () => {
     const createdCategories = await Category.create([{ name: 'warm' }, { name: 'cold' }, { name: 'natural' }]);
     const createdColors = await Color.create([

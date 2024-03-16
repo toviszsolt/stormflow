@@ -2,11 +2,11 @@ const db = require('../stormflow');
 
 db.start({ diskWrite: false });
 
-describe('stormflow', () => {
-  afterAll(() => {
-    db.setConfig({ strict: true });
-  });
+beforeEach(() => {
+  db.setConfig({ strict: true });
+});
 
+describe('stormflow', () => {
   it('does not re-init and throw error', () => {
     expect(() => db.start()).toThrow();
   });

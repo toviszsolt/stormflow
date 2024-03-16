@@ -1,9 +1,11 @@
+const { setConfig } = require('../../lib/config');
 const { Schema, applySchema } = require('../../lib/shema');
-const db = require('../../stormflow');
 
-db.start({ diskWrite: false });
+const setStrictMode = (strict) => setConfig({ strict });
 
-const setStrictMode = (strict) => db.setConfig({ strict });
+beforeEach(() => {
+  setStrictMode(true);
+});
 
 describe('Schema', () => {
   it('throw error for invalid or missing schema definition', () => {
@@ -71,8 +73,6 @@ describe('Schema', () => {
 });
 
 describe('applySchema', () => {
-  afterEach(() => setStrictMode(true));
-
   it('handle undefined value of source object', () => {
     const schema = Schema({ name: String });
     const fn = () => applySchema(undefined, schema);
@@ -279,10 +279,7 @@ describe('Intergation', () => {
             src: 'http://example.com/image_hu.jpg',
             srcSet: ['http://example.com/image_hu.jpg 800w'],
             srcSetWebp: ['http://example.com/image_hu.webp 800w'],
-            srcSetAvif: [
-              'http://example.com/image_hu.avif 800w',
-              'http://example.com/image_hu.avif 300w',
-            ],
+            srcSetAvif: ['http://example.com/image_hu.avif 800w', 'http://example.com/image_hu.avif 300w'],
           },
         },
         'en-US': {
@@ -302,10 +299,7 @@ describe('Intergation', () => {
             src: 'http://example.com/image_en.jpg',
             srcSet: ['http://example.com/image_en.jpg 800w'],
             srcSetWebp: ['http://example.com/image_en.webp 800w'],
-            srcSetAvif: [
-              'http://example.com/image_en.avif 800w',
-              'http://example.com/image_en.avif 300w',
-            ],
+            srcSetAvif: ['http://example.com/image_en.avif 800w', 'http://example.com/image_en.avif 300w'],
           },
         },
         'ar-AE': {
@@ -325,10 +319,7 @@ describe('Intergation', () => {
             src: 'http://example.com/image_ar.jpg',
             srcSet: ['http://example.com/image_ar.jpg 800w'],
             srcSetWebp: ['http://example.com/image_ar.webp 800w'],
-            srcSetAvif: [
-              'http://example.com/image_ar.avif 800w',
-              'http://example.com/image_ar.avif 300w',
-            ],
+            srcSetAvif: ['http://example.com/image_ar.avif 800w', 'http://example.com/image_ar.avif 300w'],
           },
         },
         'de-DE': {

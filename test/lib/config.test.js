@@ -1,5 +1,9 @@
 const { config, defaultConfig, setConfig, getConfig } = require('../../lib/config');
 
+beforeEach(() => {
+  setConfig(defaultConfig);
+});
+
 describe('config', () => {
   it('object is exists', () => {
     expect(typeof config).toBe('object');
@@ -27,11 +31,6 @@ describe('getConfig', () => {
 });
 
 describe('setConfig', () => {
-  beforeEach(() => {
-    // Reset config object before each it
-    Object.keys(config).forEach((key) => delete config[key]);
-  });
-
   it('merge default config with provided options', () => {
     const options = { diskWrite: false, backupInterval: 5 };
 
@@ -44,8 +43,11 @@ describe('setConfig', () => {
   });
 
   it('throw error for invalid options', () => {
+    // @ts-ignore
     expect(() => setConfig('invalid')).toThrow();
+    // @ts-ignore
     expect(() => setConfig({ invalidKey: true })).toThrow();
+    // @ts-ignore
     expect(() => setConfig({ verbose: 'not boolean' })).toThrow();
   });
 
