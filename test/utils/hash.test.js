@@ -9,7 +9,7 @@ describe('uniqueId', () => {
 
   it('generated id has the correct format', () => {
     const id = uniqueId();
-    const regex = /^[0-9a-f]{7,8}$/;
+    const regex = /^[0-9a-f]{12}$/;
     expect(id).toMatch(regex);
   });
 });
