@@ -13,23 +13,23 @@ const Category = model('categories', schemCategory);
 const Color = model('colors', schemaColor);
 const Item = model('items', schemaItem);
 
-beforeEach(() => {
-  Category.deleteMany({});
-  Color.deleteMany({});
-  Item.deleteMany({});
+beforeEach(async () => {
+  await Category.deleteMany({});
+  await Color.deleteMany({});
+  await Item.deleteMany({});
 });
 
 describe('resolveRefs', () => {
   it('resolve references', async () => {
-    const createdCategories = await Category.create([{ name: 'warm' }, { name: 'cold' }, { name: 'natural' }]);
-    const createdColors = await Color.create([
+    const createdCategories = await Category.insertMany([{ name: 'warm' }, { name: 'cold' }, { name: 'natural' }]);
+    const createdColors = await Color.insertMany([
       { name: 'red', category: createdCategories[0] },
       { name: 'green', category: createdCategories[1] },
       { name: 'blue', category: createdCategories[1] },
       { name: 'white', category: createdCategories[2] },
       { name: 'unknown' },
     ]);
-    const createdItems = await Item.create([
+    const createdItems = await Item.insertMany([
       { colors: [createdColors[0], createdColors[1]] },
       { colors: [createdColors[1], createdColors[2]] },
       { colors: [createdColors[2], createdColors[3]] },
@@ -53,13 +53,13 @@ describe('resolveRefs', () => {
   });
 
   it('invalid reference collection', async () => {
-    const createdItems = await Item.create({ badRef: {} });
+    const createdItems = await Item.insertOne({ badRef: {} });
     expect(createdItems.badRef).toBeUndefined();
   });
 
   it('invalid reference id', async () => {
-    const createdColor = await Color.create([{ name: 'unknown' }]);
-    const createdItem = await Item.create({ colors: [createdColor] });
+    const createdColor = await Color.insertOne({ name: 'unknown' });
+    const createdItem = await Item.insertOne({ colors: [createdColor] });
 
     expect(createdItem.colors[0]).toHaveProperty('_id');
 
