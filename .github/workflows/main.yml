@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -21,11 +21,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-      - name: Install, build, test
+      - name: Install
         run: |
           yarn add global dts-gen
           yarn install
-          yarn build
-          yarn test
+      - name: Build
+        run: yarn build
+      - name: Test
+        run: yarn test
       - name: Codecov
         uses: codecov/codecov-action@v4.1.0
