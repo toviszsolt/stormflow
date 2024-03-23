@@ -10,7 +10,7 @@ const basePlugins = [resolve(configResolve), commonjs(), json()];
 
 module.exports = [
   {
-    input: 'stormflow.js',
+    input: 'src/stormflow.js',
     output: [
       {
         name: 'stormflow-mjs',

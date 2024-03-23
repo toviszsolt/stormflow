@@ -1,4 +1,4 @@
-const db = require('../stormflow');
+const db = require('../src/stormflow');
 
 db.start({ diskWrite: false });
 

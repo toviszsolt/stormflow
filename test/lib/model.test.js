@@ -1,7 +1,7 @@
-const { defaultConfig, setConfig } = require('../../lib/config');
-const model = require('../../lib/model');
-const { Schema } = require('../../lib/shema');
-const { data } = require('../../lib/storage');
+const { defaultConfig, setConfig } = require('../../src/lib/config');
+const model = require('../../src/lib/model');
+const { Schema } = require('../../src/lib/shema');
+const { data } = require('../../src/lib/storage');
 
 const resetConfig = () => {
   setConfig({ ...defaultConfig, diskWrite: false });
@@ -28,7 +28,7 @@ const testData = [
   { name: 'Bob', age: 30, address: { city: 'Chicago' } },
 ];
 
-afterEach(async () => {
+beforeEach(async () => {
   resetConfig();
   await testModel.deleteMany({});
   await testModel.insertMany(testData);

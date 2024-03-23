@@ -13,7 +13,8 @@ let init = false;
 
 /**
  * Initializes Stormflow with the given options.
- * @param {object} [options=defaultConfig] - The options to use for initializing Stormflow.
+ * @param {import('./lib/config').Config} options - The options to merge.
+ * @throws {Error} If invalid options are provided.
  * @returns {void}
  */
 const start = (options = defaultConfig) => {

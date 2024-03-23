@@ -1,5 +1,4 @@
 {
   "verbose": true,
-  "watch": ["stromflow.js", "lib/"],
-  "ignore": ["**/data*/**", "dist/"]
+  "ignore": ["**/data*/**", "coverage", "dist", "node_modules", "test"]
 }

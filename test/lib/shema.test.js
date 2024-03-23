@@ -1,5 +1,5 @@
-const { setConfig } = require('../../lib/config');
-const { Schema, applySchema } = require('../../lib/shema');
+const { setConfig } = require('../../src/lib/config');
+const { Schema, applySchema } = require('../../src/lib/shema');
 
 const setStrictMode = (strict) => setConfig({ strict });
 

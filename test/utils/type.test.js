@@ -1,4 +1,4 @@
-const { getType } = require('../../utils/type');
+const { getType } = require('../../src/utils/type');
 
 describe('getType', () => {
   it('return correct type for different values', () => {

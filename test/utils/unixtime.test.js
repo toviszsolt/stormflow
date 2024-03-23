@@ -1,5 +1,5 @@
 const moment = require('moment-timezone');
-const { timeNow, timeFromStr, timeToDateObj, timeToDateStr } = require('../../utils/unixtime');
+const { timeNow, timeFromStr, timeToDateObj, timeToDateStr } = require('../../src/utils/unixtime');
 
 describe('timeNow', () => {
   it('return the current time in Unix time format', () => {

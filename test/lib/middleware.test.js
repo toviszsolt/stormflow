@@ -1,4 +1,4 @@
-const { registerMiddleware, executeMiddleware } = require('../../lib/middleware');
+const { registerMiddleware, executeMiddleware } = require('../../src/lib/middleware');
 
 let fnCallbackSync, fnCallbackAsync;
 

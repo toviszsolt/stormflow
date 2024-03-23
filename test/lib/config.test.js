@@ -1,4 +1,4 @@
-const { config, defaultConfig, setConfig, getConfig } = require('../../lib/config');
+const { config, defaultConfig, setConfig, getConfig } = require('../../src/lib/config');
 
 beforeEach(() => {
   setConfig(defaultConfig);

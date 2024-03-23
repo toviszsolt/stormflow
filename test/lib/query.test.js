@@ -1,4 +1,4 @@
-const { applyQuery } = require('../../lib/query');
+const { applyQuery } = require('../../src/lib/query');
 
 describe('applyQuery', () => {
   const collection = [
