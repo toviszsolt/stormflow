@@ -23,6 +23,7 @@ jobs:
           cache: 'yarn'
       - name: Install, build, test
         run: |
+          yarn add global dts-gen
           yarn install
           yarn build
           yarn test
