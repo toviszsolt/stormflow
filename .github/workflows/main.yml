@@ -23,7 +23,7 @@ jobs:
           cache: 'yarn'
       - name: Install
         run: |
-          yarn add global dts-gen
+          yarn add dts-gen
           yarn install
       - name: Build
         run: yarn build
