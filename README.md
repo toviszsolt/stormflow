@@ -1,3 +1,10 @@
+[![GitHub License](https://img.shields.io/github/license/toviszsolt/stormflow?style=flat)](https://github.com/toviszsolt/stormflow/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/stormflow?style=flat&color=red)](https://www.npmjs.com/package/@toviszsolt/stormflow)
+[![GitHub Repo stars](https://img.shields.io/github/stars/toviszsolt/stormflow?color=DAAA3F)](https://github.com/toviszsolt/stormflow/stargazers)
+[![Run tests](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml/badge.svg)](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/toviszsolt/stormflow/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow)
+[![Sponsor](https://img.shields.io/static/v1?label=sponsor&message=❤&color=ff69b4)](https://github.com/sponsors/toviszsolt)
+
 # StormFlow
 
 A Lightweight Data Modeling and Storage Library
