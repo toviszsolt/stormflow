@@ -94,8 +94,13 @@ const objPathResolve = (obj, path) => {
 const objPathSet = (obj, path, value) => {
   const keys = path.split('.');
   const lastKey = keys.pop();
+  const populateObj = keys.reduce((node, key) => (node[key] = node[key] || {}), obj);
 
-  keys.reduce((node, key) => (node[key] = node[key] || {}), obj)[lastKey] = value;
+  if (value === undefined) {
+    delete populateObj[lastKey];
+  } else {
+    populateObj[lastKey] = value;
+  }
 };
 
 module.exports = { objSerialize, objClone, objTraverse, objPathResolve, objPathSet };

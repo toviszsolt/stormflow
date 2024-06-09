@@ -63,27 +63,44 @@ const model = (collectionName, schema = {}) => {
   const update = (query, updates) => {
     return new Promise(async (resolve, reject) => {
       try {
-        let trulyUpdatedFields = 0;
-        const timestamp = timeNow();
-        const results = await find(query);
-
         if (getType(updates) !== 'object') {
           const msg = 'Invalid object type of updates.';
           throw new Error(msg);
         }
 
-        await executeMiddleware('pre', collectionName, 'update', results);
-        updates = schemaHasProps ? applySchema(updates, schema) : updates;
+        let changedItems = 0;
+        const timestamp = timeNow();
+        const results = await find(query);
+        const resultsClone = objClone(results);
 
-        results.forEach((el) => {
+        await executeMiddleware('pre', collectionName, 'update', resultsClone);
+
+        resultsClone.forEach((el, i) => {
+          let changedFields = 0;
+
           objTraverse(updates, ({ value, path, isNode }) => {
             if (isNode) return;
 
+            if (['_id', '_version', '_created', '_updated'].includes(path)) {
+              const msg = 'Protected fields cannot be updated: _id, _version, _created, _updated';
+              throw new Error(msg);
+            }
+
             if (objPathResolve(el, path) !== value) {
-              trulyUpdatedFields++;
+              changedFields++;
               objPathSet(el, path, value);
             }
           });
+
+          if (getType(updates.$unset) === 'object') {
+            for (const unsetPath in updates.$unset) {
+              if (objPathResolve(el, unsetPath) !== undefined) {
+                changedFields++;
+                objPathSet(el, unsetPath, undefined);
+              }
+            }
+          }
+
           // for (const key in updates) {
           //   if (updates.hasOwnProperty(key)) {
           //     const fieldToUpdate = updates[key];
@@ -122,20 +139,27 @@ const model = (collectionName, schema = {}) => {
           //   }
           // }
 
-          if (trulyUpdatedFields) {
-            el._version = (el._version || 0) + 1;
+          if (changedFields) {
+            changedItems++;
+            el._version = (el._version || 1) + 1;
+
             if (config.defaultFields) {
               el._created ??= timestamp;
               el._updated = timestamp;
             }
+
+            const { _id, _version, _created, _updated } = el;
+            const applyUpdates = schemaHasProps ? applySchema(el, schema) : el;
+
+            results[i] = { ...applyUpdates, _id, _version, _created, _updated };
           }
         });
 
-        if (trulyUpdatedFields > 0) {
+        if (changedItems > 0) {
           saveDataToFile(collectionName);
         }
 
-        await executeMiddleware('post', collectionName, 'update', results);
+        await executeMiddleware('post', collectionName, 'update', objClone(results));
 
         resolve(resolveRefs(results));
       } catch (err) {

@@ -119,6 +119,57 @@ describe('model.update', () => {
     await expect(testModel.update(null, data)).rejects.toThrow(/query/);
     await expect(testModel.update({ name: 'John' }, null)).rejects.toThrow(/updates/);
   });
+
+  it('update a document without schema', async () => {
+    const data = { age: 32, address: { city: 'Miami' } };
+    const updated = await testModelNoSchema.update({ name: 'John' }, data);
+    expect(updated[0].age).toBe(32);
+    expect(updated[0].address.city).toBe('Miami');
+    expect(updated[0]._version).toBe(2);
+    expect(updated[0]._updated).toBeDefined();
+  });
+
+  it('update a document with skip _id, _version, _created, _updated', async () => {
+    const data = { age: 32, address: { city: 'Miami' }, _id: 0, _version: 0, _created: 0, _updated: 0 };
+    await expect(testModel.update({ name: 'John' }, data)).rejects.toThrow(/protected/i);
+  });
+
+  it('update a document with same value', async () => {
+    const data = { age: 20 };
+    const updated = await testModel.update({ name: 'John' }, data);
+    expect(updated[0].age).toBe(20);
+  });
+
+  it('update a document without version', async () => {
+    delete storageData['tests'][0]._version;
+    const data = { age: 21 };
+    const updated = await testModel.update({ name: 'John' }, data);
+    expect(updated[0]._version).toBe(2);
+  });
+
+  it('update a document without defaultFields', async () => {
+    setConfig({ defaultFields: false });
+    const data = { age: 21, address: { city: 'Orlando' } };
+    await testModel.insertOne({ name: 'Angela', age: 19 });
+    const updated = await testModel.update({ name: 'Angela' }, data);
+    expect(updated[0].age).toBe(21);
+    expect(updated[0].address.city).toBe('Orlando');
+    expect(updated[0]._version).toBe(2);
+    expect(updated[0]._created).toBeUndefined();
+    expect(updated[0]._updated).toBeUndefined();
+  });
+
+  it('update a document with $unset', async () => {
+    const data = { $unset: { address: 1 } };
+    const updated = await testModel.update({ name: 'John' }, data);
+    expect(updated[0].address).toBeUndefined();
+  });
+
+  it('update a document with $unset (non-existing field)', async () => {
+    const data = { $unset: { color: 1 } };
+    const updated = await testModel.update({ name: 'John' }, data);
+    expect(updated[0].color).toBeUndefined();
+  });
 });
 
 describe('model.deleteOne', () => {
