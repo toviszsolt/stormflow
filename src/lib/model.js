@@ -24,7 +24,7 @@ const model = (collectionName, schema = {}) => {
 
   if (!data[collectionName]) data[collectionName] = [];
 
-  const create = (items) => {
+  const createItems = (items) => {
     return new Promise(async (resolve, reject) => {
       try {
         items = getType(items) === 'array' ? items : [items];
@@ -60,7 +60,7 @@ const model = (collectionName, schema = {}) => {
     });
   };
 
-  const update = (items, updates) => {
+  const updateItems = (items, updates) => {
     return new Promise(async (resolve, reject) => {
       try {
         if (getType(updates) !== 'object') {
@@ -141,42 +141,6 @@ const model = (collectionName, schema = {}) => {
     });
   };
 
-  const insertOne = async (item) => {
-    if (getType(item) !== 'object') {
-      const msg = 'Invalid object type of item.';
-      throw new Error(msg);
-    }
-    const results = await create(item);
-    return resolveRefs(results[0]);
-  };
-
-  const insertMany = async (items) => {
-    if (getType(items) !== 'array') {
-      const msg = 'Invalid array type of items.';
-      throw new Error(msg);
-    }
-    const results = await create(items);
-    return resolveRefs(results);
-  };
-
-  const findByIdAndUpdate = async (id, updates) => {
-    const itemToUpdate = await findOne({ _id: id });
-    const results = await update([itemToUpdate], updates);
-    return resolveRefs(results[0]);
-  };
-
-  const updateOne = async (query, updates) => {
-    const itemToUpdate = await findOne(query);
-    const results = await update([itemToUpdate], updates);
-    return resolveRefs(results[0]);
-  };
-
-  const updateMany = async (query, updates) => {
-    const itemToUpdate = await find(query);
-    const results = await update(itemToUpdate, updates);
-    return resolveRefs(results);
-  };
-
   const find = (query, withRefs = false) => {
     return new Promise((resolve, reject) => {
       try {
@@ -190,6 +154,42 @@ const model = (collectionName, schema = {}) => {
         reject(err);
       }
     });
+  };
+
+  const insertOne = async (item) => {
+    if (getType(item) !== 'object') {
+      const msg = 'Invalid object type of item.';
+      throw new Error(msg);
+    }
+    const results = await createItems(item);
+    return resolveRefs(results[0]);
+  };
+
+  const insertMany = async (items) => {
+    if (getType(items) !== 'array') {
+      const msg = 'Invalid array type of items.';
+      throw new Error(msg);
+    }
+    const results = await createItems(items);
+    return resolveRefs(results);
+  };
+
+  const findByIdAndUpdate = async (id, updates) => {
+    const items = await findOne({ _id: id });
+    const results = await updateItems([items], updates);
+    return resolveRefs(results[0]);
+  };
+
+  const updateOne = async (query, updates) => {
+    const items = await findOne(query);
+    const results = await updateItems([items], updates);
+    return resolveRefs(results[0]);
+  };
+
+  const updateMany = async (query, updates) => {
+    const items = await find(query);
+    const results = await updateItems(items, updates);
+    return resolveRefs(results);
   };
 
   const findOne = async (query, withRefs = false) => {
@@ -217,20 +217,20 @@ const model = (collectionName, schema = {}) => {
   };
 
   const findByIdAndDelete = async (id) => {
-    const itemToDelete = await findById(id);
-    const results = await deleteItems([itemToDelete]);
+    const items = await findById(id);
+    const results = await deleteItems([items]);
     return resolveRefs(results[0]);
   };
 
   const deleteOne = async (query) => {
-    const itemToDelete = await findOne(query);
-    const results = await deleteItems([itemToDelete]);
+    const items = await findOne(query);
+    const results = await deleteItems([items]);
     return resolveRefs(results[0]);
   };
 
   const deleteMany = async (query) => {
-    const itemsToDelete = await find(query);
-    const results = await deleteItems(itemsToDelete);
+    const items = await find(query);
+    const results = await deleteItems(items);
     return resolveRefs(results);
   };
 
