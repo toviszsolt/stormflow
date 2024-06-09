@@ -88,6 +88,11 @@ describe('model.insertOne', () => {
     const created = await testModelNoSchema.insertOne(data);
     expect(created).toEqual(expect.objectContaining(data));
   });
+
+  it('insert with rejection', async () => {
+    const data = { name: 123 };
+    await expect(testModel.insertOne(data)).rejects.toThrow(/type/);
+  });
 });
 
 describe('model.insertMany', () => {
@@ -108,71 +113,97 @@ describe('model.insertMany', () => {
   });
 });
 
-describe('model.update', () => {
+describe('model.updateOne', () => {
   it('update a document', async () => {
     const data = { age: 32, address: { city: 'Miami' } };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0].age).toBe(32);
-    expect(updated[0].address.city).toBe('Miami');
-    expect(updated[0]._version).toBe(2);
-    expect(updated[0]._updated).toBeDefined();
-    await expect(testModel.update(null, data)).rejects.toThrow(/query/);
-    await expect(testModel.update({ name: 'John' }, null)).rejects.toThrow(/updates/);
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated.age).toBe(32);
+    expect(updated.address.city).toBe('Miami');
+    expect(updated._version).toBe(2);
+    expect(updated._updated).toBeDefined();
+    await expect(testModel.updateOne(null, data)).rejects.toThrow(/query/);
+    await expect(testModel.updateOne({ name: 'John' }, null)).rejects.toThrow(/updates/);
   });
 
   it('update a document without schema', async () => {
     const data = { age: 32, address: { city: 'Miami' } };
-    const updated = await testModelNoSchema.update({ name: 'John' }, data);
-    expect(updated[0].age).toBe(32);
-    expect(updated[0].address.city).toBe('Miami');
-    expect(updated[0]._version).toBe(2);
-    expect(updated[0]._updated).toBeDefined();
+    const updated = await testModelNoSchema.updateOne({ name: 'John' }, data);
+    expect(updated.age).toBe(32);
+    expect(updated.address.city).toBe('Miami');
+    expect(updated._version).toBe(2);
+    expect(updated._updated).toBeDefined();
   });
 
   it('update a document with skip _id, _version, _created, _updated', async () => {
     const data = { age: 32, address: { city: 'Miami' }, _id: 0, _version: 0, _created: 0, _updated: 0 };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0]._id).not.toBe(0);
-    expect(updated[0]._version).not.toBe(0);
-    expect(updated[0]._created).not.toBe(0);
-    expect(updated[0]._updated).not.toBe(0);
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated._id).not.toBe(0);
+    expect(updated._version).not.toBe(0);
+    expect(updated._created).not.toBe(0);
+    expect(updated._updated).not.toBe(0);
   });
 
   it('update a document with same value', async () => {
     const data = { age: 20 };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0].age).toBe(20);
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated.age).toBe(20);
   });
 
   it('update a document without version', async () => {
     delete storageData['tests'][0]._version;
     const data = { age: 21 };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0]._version).toBe(2);
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated._version).toBe(2);
   });
 
   it('update a document without defaultFields', async () => {
     setConfig({ defaultFields: false });
     const data = { age: 21, address: { city: 'Orlando' } };
     await testModel.insertOne({ name: 'Angela', age: 19 });
-    const updated = await testModel.update({ name: 'Angela' }, data);
-    expect(updated[0].age).toBe(21);
-    expect(updated[0].address.city).toBe('Orlando');
-    expect(updated[0]._version).toBe(2);
-    expect(updated[0]._created).toBeUndefined();
-    expect(updated[0]._updated).toBeUndefined();
+    const updated = await testModel.updateOne({ name: 'Angela' }, data);
+    expect(updated.age).toBe(21);
+    expect(updated.address.city).toBe('Orlando');
+    expect(updated._version).toBe(2);
+    expect(updated._created).toBeUndefined();
+    expect(updated._updated).toBeUndefined();
   });
 
   it('update a document with $unset', async () => {
     const data = { $unset: { address: 1 } };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0].address).toBeUndefined();
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated.address).toBeUndefined();
   });
 
   it('update a document with $unset (non-existing field)', async () => {
     const data = { $unset: { color: 1 } };
-    const updated = await testModel.update({ name: 'John' }, data);
-    expect(updated[0].color).toBeUndefined();
+    const updated = await testModel.updateOne({ name: 'John' }, data);
+    expect(updated.color).toBeUndefined();
+  });
+});
+
+describe('model.updateMany', () => {
+  it('update many documents', async () => {
+    const data = { age: 32, address: { city: 'Miami' } };
+    const updated = await testModel.updateMany({ name: { $in: ['John', 'Jane'] } }, data);
+    expect(updated.length).toBe(2);
+    expect(updated[0].age).toBe(32);
+    expect(updated[0].address.city).toBe('Miami');
+    expect(updated[0]._version).toBe(2);
+    expect(updated[0]._updated).toBeDefined();
+    await expect(testModel.updateMany(null, data)).rejects.toThrow(/query/);
+    await expect(testModel.updateMany({ name: 'John' }, null)).rejects.toThrow(/updates/);
+  });
+});
+
+describe('model.findByIdAndUpdate ', () => {
+  it('update a document', async () => {
+    const find = await testModel.findOne({ name: 'John' });
+    const data = { age: 32, address: { city: 'Miami' } };
+    const updated = await testModel.findByIdAndUpdate(find._id, data);
+    expect(updated.age).toBe(32);
+    expect(updated.address.city).toBe('Miami');
+    expect(updated._version).toBe(2);
+    expect(updated._updated).toBeDefined();
   });
 });
 

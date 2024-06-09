@@ -60,7 +60,7 @@ const model = (collectionName, schema = {}) => {
     });
   };
 
-  const update = (query, updates) => {
+  const update = (items, updates) => {
     return new Promise(async (resolve, reject) => {
       try {
         if (getType(updates) !== 'object') {
@@ -70,7 +70,6 @@ const model = (collectionName, schema = {}) => {
 
         let changedItems = 0;
         const timestamp = timeNow();
-        const items = await find(query);
 
         await executeMiddleware('pre', collectionName, 'update', items);
 
@@ -116,7 +115,7 @@ const model = (collectionName, schema = {}) => {
 
         await executeMiddleware('post', collectionName, 'update', items);
 
-        resolve(resolveRefs(items));
+        resolve(items);
       } catch (err) {
         reject(err);
       }
@@ -158,6 +157,24 @@ const model = (collectionName, schema = {}) => {
     }
     const results = await create(items);
     return resolveRefs(results);
+  };
+
+  const updateOne = async (query, updates) => {
+    const itemToUpdate = await findOne(query);
+    const results = await update([itemToUpdate], updates);
+    return resolveRefs(results[0]);
+  };
+
+  const updateMany = async (query, updates) => {
+    const itemToUpdate = await find(query);
+    const results = await update(itemToUpdate, updates);
+    return resolveRefs(results);
+  };
+
+  const findByIdAndUpdate = async (id, updates) => {
+    const itemToUpdate = await findOne({ _id: id });
+    const results = await update([itemToUpdate], updates);
+    return resolveRefs(results[0]);
   };
 
   const find = (query, withRefs = false) => {
@@ -221,9 +238,9 @@ const model = (collectionName, schema = {}) => {
     // Implement methods:
     //
     // insertOne, insertMany
-    // updateOne, updateMany, findOneAndUpdate, findByIdAndUpdate
-    // replaceOne, findOneAndReplace, findByIdAndReplace
-    // deleteOne, deleteMany, findOneAndDelete, findByIdAndDelete
+    // updateOne, updateMany, findByIdAndUpdate
+    // replaceOne, findByIdAndReplace
+    // deleteOne, deleteMany, findByIdAndDelete
     // count, exists, schema, validate
     pre: (method, fn) => registerMiddleware('pre', collectionName, method, fn),
     post: (method, fn) => registerMiddleware('post', collectionName, method, fn),
@@ -232,7 +249,9 @@ const model = (collectionName, schema = {}) => {
     findById: async (query) => await findById(query, true),
     insertOne,
     insertMany,
-    update,
+    updateOne,
+    updateMany,
+    findByIdAndUpdate,
     deleteOne,
     deleteMany,
     findByIdAndDelete,
