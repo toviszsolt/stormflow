@@ -159,6 +159,12 @@ const model = (collectionName, schema = {}) => {
     return resolveRefs(results);
   };
 
+  const findByIdAndUpdate = async (id, updates) => {
+    const itemToUpdate = await findOne({ _id: id });
+    const results = await update([itemToUpdate], updates);
+    return resolveRefs(results[0]);
+  };
+
   const updateOne = async (query, updates) => {
     const itemToUpdate = await findOne(query);
     const results = await update([itemToUpdate], updates);
@@ -169,12 +175,6 @@ const model = (collectionName, schema = {}) => {
     const itemToUpdate = await find(query);
     const results = await update(itemToUpdate, updates);
     return resolveRefs(results);
-  };
-
-  const findByIdAndUpdate = async (id, updates) => {
-    const itemToUpdate = await findOne({ _id: id });
-    const results = await update([itemToUpdate], updates);
-    return resolveRefs(results[0]);
   };
 
   const find = (query, withRefs = false) => {
@@ -216,6 +216,12 @@ const model = (collectionName, schema = {}) => {
     return results > 0;
   };
 
+  const findByIdAndDelete = async (id) => {
+    const itemToDelete = await findById(id);
+    const results = await deleteItems([itemToDelete]);
+    return resolveRefs(results[0]);
+  };
+
   const deleteOne = async (query) => {
     const itemToDelete = await findOne(query);
     const results = await deleteItems([itemToDelete]);
@@ -226,12 +232,6 @@ const model = (collectionName, schema = {}) => {
     const itemsToDelete = await find(query);
     const results = await deleteItems(itemsToDelete);
     return resolveRefs(results);
-  };
-
-  const findByIdAndDelete = async (id) => {
-    const itemToDelete = await findById(id);
-    const results = await deleteItems([itemToDelete]);
-    return resolveRefs(results[0]);
   };
 
   return {
@@ -247,14 +247,14 @@ const model = (collectionName, schema = {}) => {
     find: async (query) => await find(query, true),
     findOne: async (query) => await findOne(query, true),
     findById: async (query) => await findById(query, true),
+    findByIdAndUpdate,
+    findByIdAndDelete,
     insertOne,
     insertMany,
     updateOne,
     updateMany,
-    findByIdAndUpdate,
     deleteOne,
     deleteMany,
-    findByIdAndDelete,
     count,
     exists,
   };
