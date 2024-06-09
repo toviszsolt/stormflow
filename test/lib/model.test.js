@@ -131,7 +131,11 @@ describe('model.update', () => {
 
   it('update a document with skip _id, _version, _created, _updated', async () => {
     const data = { age: 32, address: { city: 'Miami' }, _id: 0, _version: 0, _created: 0, _updated: 0 };
-    await expect(testModel.update({ name: 'John' }, data)).rejects.toThrow(/protected/i);
+    const updated = await testModel.update({ name: 'John' }, data);
+    expect(updated[0]._id).not.toBe(0);
+    expect(updated[0]._version).not.toBe(0);
+    expect(updated[0]._created).not.toBe(0);
+    expect(updated[0]._updated).not.toBe(0);
   });
 
   it('update a document with same value', async () => {

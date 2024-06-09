@@ -12,13 +12,13 @@ const { data, saveDataToFile } = require('./storage');
 const model = (collectionName, schema = {}) => {
   const schemaHasProps = Object.keys(schema).length > 0;
 
-  if (/^[a-z0-9_-]+$/i.test(collectionName) == false) {
-    const msg = 'Collection name must contain only small caps, numbers, hypens or underscores.';
+  if (/^[a-z0-9_-]+$/.test(collectionName) == false) {
+    const msg = `Collection name (${collectionName}) must contain only small caps, numbers, hypens or underscores.`;
     throw new Error(msg);
   }
 
   if (collectionName.endsWith('s') === false) {
-    const msg = 'Collection name must be plural. For example: users, categories, products.';
+    const msg = `Collection name (${collectionName}) must be plural. For example: users, categories, products.`;
     throw new Error(msg);
   }
 
@@ -70,21 +70,17 @@ const model = (collectionName, schema = {}) => {
 
         let changedItems = 0;
         const timestamp = timeNow();
-        const results = await find(query);
-        const resultsClone = objClone(results);
+        const items = await find(query);
 
-        await executeMiddleware('pre', collectionName, 'update', resultsClone);
+        await executeMiddleware('pre', collectionName, 'update', items);
 
-        resultsClone.forEach((el, i) => {
+        items.forEach((el) => {
           let changedFields = 0;
+          const index = data[collectionName].indexOf(el);
+          const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
 
-          objTraverse(updates, ({ value, path, isNode }) => {
-            if (isNode) return;
-
-            if (['_id', '_version', '_created', '_updated'].includes(path)) {
-              const msg = 'Protected fields cannot be updated: _id, _version, _created, _updated';
-              throw new Error(msg);
-            }
+          objTraverse(applyUpdates, ({ value, path, isNode }) => {
+            if (isNode || path.startsWith('$')) return;
 
             if (objPathResolve(el, path) !== value) {
               changedFields++;
@@ -101,46 +97,7 @@ const model = (collectionName, schema = {}) => {
             }
           }
 
-          // for (const key in updates) {
-          //   if (updates.hasOwnProperty(key)) {
-          //     const fieldToUpdate = updates[key];
-
-          //     if (updates.$unset) {
-          //       for (const unsetKeys in updates.$unset) {
-          //         if (updates.$unset.hasOwnProperty(unsetKeys)) {
-          //           const unsetKeyChain = unsetKeys.split('.');
-          //           const unsetLastKey = unsetKeyChain.pop();
-
-          //           let currentObj = el;
-          //           for (const unsetKey of unsetKeyChain) {
-          //             currentObj = currentObj[unsetKey];
-          //           }
-
-          //           delete currentObj[unsetLastKey];
-          //           trulyUpdatedFields++;
-          //         }
-          //       }
-          //     } else if (schemaHasProps && schema[key] && schema[key].$ref) {
-          //       const refCollection = data[schema[key].$ref];
-          //       if (refCollection) {
-          //         const refItem = refCollection.find((elRef) => elRef._id === fieldToUpdate);
-          //         if (refItem) {
-          //           trulyUpdatedFields++;
-          //           el[key] = { _ref: { collection: schema[key].$ref, id: refItem._id } };
-          //         }
-          //       }
-          //     } else {
-          //       const newValue = schemaHasProps ? applySchema(fieldToUpdate, schema[key]) : fieldToUpdate;
-          //       if (el[key] !== newValue) {
-          //         trulyUpdatedFields++;
-          //         el[key] = newValue;
-          //       }
-          //     }
-          //   }
-          // }
-
           if (changedFields) {
-            changedItems++;
             el._version = (el._version || 1) + 1;
 
             if (config.defaultFields) {
@@ -148,10 +105,8 @@ const model = (collectionName, schema = {}) => {
               el._updated = timestamp;
             }
 
-            const { _id, _version, _created, _updated } = el;
-            const applyUpdates = schemaHasProps ? applySchema(el, schema) : el;
-
-            results[i] = { ...applyUpdates, _id, _version, _created, _updated };
+            changedItems++;
+            data[collectionName][index] = objClone(el);
           }
         });
 
@@ -159,9 +114,9 @@ const model = (collectionName, schema = {}) => {
           saveDataToFile(collectionName);
         }
 
-        await executeMiddleware('post', collectionName, 'update', objClone(results));
+        await executeMiddleware('post', collectionName, 'update', items);
 
-        resolve(resolveRefs(results));
+        resolve(resolveRefs(items));
       } catch (err) {
         reject(err);
       }
