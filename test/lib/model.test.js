@@ -36,9 +36,15 @@ beforeEach(async () => {
 
 describe('model', () => {
   it('invalid collection name', () => {
+    expect(() => model()).toThrow(/name/);
+    expect(() => model('')).toThrow(/name/);
+    expect(() => model(' ')).toThrow(/name/);
     expect(() => model('test')).toThrow(/name/);
     expect(() => model('Test')).toThrow(/name/);
     expect(() => model('te st')).toThrow(/name/);
+    expect(() => model('__proto__')).toThrow(/name/);
+    expect(() => model('prototype')).toThrow(/name/);
+    expect(() => model('constructor')).toThrow(/name/);
   });
 
   it('use an existing collection or create a new one', async () => {
