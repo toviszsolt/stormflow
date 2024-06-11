@@ -9,11 +9,16 @@ const { resolveRefs } = require('./refs');
 const { applySchema } = require('./shema');
 const { data, saveDataToFile } = require('./storage');
 
-const model = (collectionName, schema = {}) => {
+const model = (collectionName = '', schema = {}) => {
   const schemaHasProps = Object.keys(schema).length > 0;
 
   if (/^[a-z0-9_-]+$/.test(collectionName) == false) {
     const msg = `Collection name (${collectionName}) must contain only small caps, numbers, hypens or underscores.`;
+    throw new Error(msg);
+  }
+
+  if (['__proto__', 'prototype', 'constructor'].includes(collectionName)) {
+    const msg = `Collection name (${collectionName}) must not be "__proto__", "prototype" or "constructor".`;
     throw new Error(msg);
   }
 
