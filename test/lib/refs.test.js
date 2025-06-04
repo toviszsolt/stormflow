@@ -1,6 +1,6 @@
 const { setConfig } = require('../../src/lib/config');
 const { resolveRefs } = require('../../src/lib/refs');
-const { Schema } = require('../../src/lib/shema');
+const { Schema } = require('../../src/lib/schema');
 const model = require('../../src/lib/model');
 
 setConfig({ diskWrite: false });

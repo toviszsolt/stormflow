@@ -6,7 +6,7 @@ const { config } = require('./config');
 const { registerMiddleware, executeMiddleware } = require('./middleware');
 const { applyQuery } = require('./query');
 const { resolveRefs } = require('./refs');
-const { applySchema } = require('./shema');
+const { applySchema } = require('./schema');
 const { data, saveDataToFile } = require('./storage');
 
 const model = (collectionName = '', schema = {}) => {

@@ -1,6 +1,6 @@
 const { defaultConfig, setConfig } = require('../../src/lib/config');
 const model = require('../../src/lib/model');
-const { Schema } = require('../../src/lib/shema');
+const { Schema } = require('../../src/lib/schema');
 const { data } = require('../../src/lib/storage');
 
 const resetConfig = () => {

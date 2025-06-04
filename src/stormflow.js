@@ -1,7 +1,7 @@
 const model = require('./lib/model');
 const { defaultConfig, config, getConfig, setConfig } = require('./lib/config');
 const { diskStats, initFileStorage } = require('./lib/storage');
-const { Schema } = require('./lib/shema');
+const { Schema } = require('./lib/schema');
 const utils = {
   ...require('./utils/hash'),
   ...require('./utils/object'),

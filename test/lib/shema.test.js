@@ -1,5 +1,5 @@
 const { setConfig } = require('../../src/lib/config');
-const { Schema, applySchema } = require('../../src/lib/shema');
+const { Schema, applySchema } = require('../../src/lib/schema');
 
 const setStrictMode = (strict) => setConfig({ strict });
 
@@ -224,8 +224,8 @@ describe('applySchema', () => {
   });
 });
 
-describe('Intergation', () => {
-  it('apply complex schema to source corretly', () => {
+describe('Integration', () => {
+  it('apply complex schema to source correctly', () => {
     const image = {
       width: { type: Number, default: 0 },
       height: { type: Number, default: 0 },
