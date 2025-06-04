@@ -320,3 +320,46 @@ describe('model.post', () => {
     expect(postHook).toHaveBeenCalled();
   });
 });
+
+describe('additional tests for model', () => {
+  it('resetConfig sets config to defaultConfig with diskWrite false', () => {
+    setConfig({ diskWrite: true, defaultFields: false });
+    resetConfig();
+    const currentConfig = require('../../src/lib/config').getConfig?.() || {};
+    expect(currentConfig.diskWrite).toBe(false);
+    expect(currentConfig.defaultFields).toBe(defaultConfig.defaultFields);
+  });
+
+  it('insertOne accepts document with missing fields when strict mode is disabled', async () => {
+    resetConfig();
+    setConfig({ strict: false });
+    const data = { name: 'Anna' };
+    const created = await testModel.insertOne(data);
+    expect(created.name).toBe('Anna');
+  });
+
+  it('find accepts empty object {} as valid query', async () => {
+    const allDocs = await testModel.find({});
+    expect(allDocs.length).toBeGreaterThan(0);
+  });
+
+  it('updateOne merges nested object fields rather than replacing whole object', async () => {
+    const initial = await testModel.findOne({ name: 'John' });
+    const partialUpdate = { address: { city: 'Boston' } };
+    const updated = await testModel.updateOne({ _id: initial._id }, partialUpdate);
+    expect(updated.address.city).toBe('Boston');
+  });
+
+  it('multiple updates increment version correctly', async () => {
+    const initial = await testModel.findOne({ name: 'John' });
+    const firstUpdate = await testModel.updateOne({ _id: initial._id }, { age: 40 });
+    expect(firstUpdate._version).toBe((initial._version || 1) + 1);
+    const secondUpdate = await testModel.updateOne({ _id: initial._id }, { age: 45 });
+    expect(secondUpdate._version).toBe(firstUpdate._version + 1);
+  });
+
+  it('count rejects when query is missing or invalid', async () => {
+    await expect(testModel.count()).rejects.toThrow(/query/);
+    await expect(testModel.count(null)).rejects.toThrow(/query/);
+  });
+});
