@@ -222,6 +222,58 @@ describe('applySchema', () => {
 
     expect(result).toEqual(source);
   });
+
+  it('should use default if value is missing in non-strict mode', () => {
+    const schema = Schema({ name: { type: String, default: 'Anonymous' } });
+
+    setStrictMode(false);
+    const result = applySchema({}, schema);
+    expect(result).toEqual({ name: 'Anonymous' });
+  });
+
+  it('should reject unsupported function types', () => {
+    expect(() => Schema({ fn: Function })).toThrow();
+    expect(() => Schema({ data: Map })).toThrow();
+    expect(() => Schema({ values: Set })).toThrow();
+  });
+
+  it('should throw for invalid array element type', () => {
+    const schema = Schema({ items: [{ key: String, value: Number }] });
+    const fn = () => applySchema({ items: [{ key: 'Test', value: 'NaN' }] }, schema);
+
+    expect(fn).toThrow();
+
+    setStrictMode(false);
+    expect(fn()).toEqual({ items: [{ key: 'Test', value: 0 }] });
+  });
+
+  it('should coerce string to number and fallback on failure in non-strict mode', () => {
+    const schema = Schema({ score: Number });
+    const valid = () => applySchema({ score: '42' }, schema);
+    const invalid = () => applySchema({ score: 'not a number' }, schema);
+
+    setStrictMode(false);
+    expect(valid()).toEqual({ score: 42 });
+    expect(invalid()).toEqual({ score: 0 });
+  });
+
+  it('should coerce boolean from various inputs in non-strict mode', () => {
+    const schema = Schema({ active: Boolean });
+
+    setStrictMode(false);
+    expect(applySchema({ active: 'true' }, schema)).toEqual({ active: true });
+    expect(applySchema({ active: '' }, schema)).toEqual({ active: false });
+    expect(applySchema({ active: 0 }, schema)).toEqual({ active: false });
+    expect(applySchema({ active: 1 }, schema)).toEqual({ active: true });
+  });
+
+  it('should skip default when value is explicitly null (non-strict)', () => {
+    const schema = Schema({ name: { type: String, default: 'Default' } });
+
+    setStrictMode(false);
+    const result = applySchema({ name: null }, schema);
+    expect(result).toEqual({ name: 'null' });
+  });
 });
 
 describe('Integration', () => {
