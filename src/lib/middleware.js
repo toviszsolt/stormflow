@@ -2,6 +2,8 @@ const { getType } = require('../utils/type');
 
 const middlewares = [];
 
+const allowedTypes = ['pre', 'post'];
+
 const registerMiddleware = (type, collection, method, fn) => {
   if (getType(method) === 'array') {
     return method.forEach((el) => {
@@ -10,7 +12,7 @@ const registerMiddleware = (type, collection, method, fn) => {
   }
 
   if (
-    getType(type) === 'string' &&
+    allowedTypes.includes(type) &&
     getType(collection) === 'string' &&
     getType(method) === 'string' &&
     getType(fn) === 'function'
@@ -20,9 +22,7 @@ const registerMiddleware = (type, collection, method, fn) => {
 };
 
 const executeOneMiddleware = async (type, collection, method, res) => {
-  const results = middlewares.filter((el) => {
-    return el.type === type && el.collection === collection && el.method === method;
-  });
+  const results = middlewares.filter((el) => el.type === type && el.collection === collection && el.method === method);
 
   for (const el of results) {
     if (el.fn.length === 2) {
