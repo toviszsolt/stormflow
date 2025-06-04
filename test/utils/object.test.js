@@ -81,6 +81,7 @@ describe('objClone', () => {
   it('does not clone function', () => {
     const func = () => {};
     const cloned = objClone(func);
+    expect(typeof cloned).toBe('function');
     expect(cloned).toEqual(func);
   });
 
@@ -131,10 +132,18 @@ describe('objPathResolve', () => {
 });
 
 describe('objPathSet', () => {
-  it('set object property corretly', () => {
-    const obj = {};
-    objPathSet(obj, 'a.b.c', 123);
-    expect(obj).toEqual({ a: { b: { c: 123 } } });
+  it('set object property correctly', () => {
+    const obj1 = {};
+    objPathSet(obj1, 'a.b.c', 123);
+    expect(obj1).toEqual({ a: { b: { c: 123 } } });
+
+    const obj2 = {};
+    objPathSet(obj2, 'a.b.0', 99);
+    expect(obj2).toEqual({ a: { b: [99] } });
+
+    const obj3 = {};
+    objPathSet(obj3, 'a.b.1', 99);
+    expect(obj3).toEqual({ a: { b: [, 99] } });
   });
 
   it('overwrite existing value correctly', () => {

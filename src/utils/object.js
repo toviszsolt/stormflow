@@ -93,13 +93,25 @@ const objPathResolve = (obj, path) => {
  */
 const objPathSet = (obj, path, value) => {
   const keys = path.split('.');
-  const lastKey = keys.pop();
-  const populateObj = keys.reduce((node, key) => (node[key] = node[key] || {}), obj);
+  let node = obj;
 
-  if (value === undefined) {
-    delete populateObj[lastKey];
-  } else {
-    populateObj[lastKey] = value;
+  for (let i = 0; i < keys.length; i++) {
+    const rawKey = keys[i];
+    const isIndex = Number.isInteger(Number(rawKey));
+    const key = isIndex ? Number(rawKey) : rawKey;
+    const isLast = i === keys.length - 1;
+
+    if (isLast) {
+      if (value === undefined) {
+        Array.isArray(node) ? node.splice(Number(key), 1) : delete node[key];
+      } else {
+        node[key] = value;
+      }
+    } else {
+      const nextIsIndex = Number.isInteger(Number(keys[i + 1]));
+      if (!(key in node)) node[key] = nextIsIndex ? [] : {};
+      node = node[key];
+    }
   }
 };
 
