@@ -2,7 +2,9 @@ const { objPathResolve } = require('../utils/object');
 const { getType } = require('../utils/type');
 
 const applyQuery = (collection, query) => {
-  if (!query) return collection;
+  if (!query || typeof query !== 'object' || Array.isArray(query)) {
+    return collection;
+  }
 
   if (getType(query.$and) === 'array') {
     return query.$and.reduce((acc, andQuery) => {
