@@ -136,7 +136,9 @@ describe('objPathSet', () => {
     const obj1 = {};
     objPathSet(obj1, 'a.b.c', 123);
     expect(obj1).toEqual({ a: { b: { c: 123 } } });
+  });
 
+  it('set array index correctly', () => {
     const obj2 = {};
     objPathSet(obj2, 'a.b.0', 99);
     expect(obj2).toEqual({ a: { b: [99] } });
@@ -144,6 +146,10 @@ describe('objPathSet', () => {
     const obj3 = {};
     objPathSet(obj3, 'a.b.1', 99);
     expect(obj3).toEqual({ a: { b: [, 99] } });
+
+    const obj4 = { arr: ['a', 'b', 'c', 'd'] };
+    objPathSet(obj4, 'arr.1', undefined);
+    expect(obj4.arr).toEqual(['a', 'c', 'd']);
   });
 
   it('overwrite existing value correctly', () => {
