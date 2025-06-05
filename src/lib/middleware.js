@@ -1,37 +1,55 @@
+const { uniqueId } = require('../utils/hash');
 const { getType } = require('../utils/type');
 
-const middlewares = [];
+const middlewares = new Map();
 
 const allowedTypes = ['pre', 'post'];
+const allowedMethods = ['create', 'read', 'update', 'replace', 'delete'];
 
 const registerMiddleware = (type, collection, method, fn) => {
   if (getType(method) === 'array') {
-    return method.forEach((el) => {
-      registerMiddleware(type, collection, el, fn);
-    });
+    return method.map((el) => registerMiddleware(type, collection, el, fn));
   }
 
-  if (
-    allowedTypes.includes(type) &&
-    getType(collection) === 'string' &&
-    getType(method) === 'string' &&
-    getType(fn) === 'function'
-  ) {
-    middlewares.push({ type, collection, method, fn });
+  if (!allowedTypes.includes(type)) {
+    throw new Error(`Invalid middleware type: ${type}`);
   }
+
+  if (getType(collection) !== 'string') {
+    throw new Error(`Invalid middleware collection: ${collection}`);
+  }
+
+  if (getType(method) !== 'string' || !allowedMethods.includes(method)) {
+    throw new Error(`Invalid middleware method: ${method}`);
+  }
+
+  if (getType(fn) !== 'function') {
+    throw new Error(`Invalid middleware function: ${fn}`);
+  }
+
+  const id = uniqueId();
+  middlewares.set(id, { type, collection, method, fn });
+  return id;
+};
+
+const unregisterMiddleware = (id) => {
+  if (getType(id) !== 'string') {
+    throw new Error(`Invalid middleware id: ${id}`);
+  }
+
+  return middlewares.delete(id);
 };
 
 const executeOneMiddleware = async (type, collection, method, res) => {
-  const results = middlewares.filter((el) => el.type === type && el.collection === collection && el.method === method);
+  const results = [];
+  for (const middleware of middlewares.values()) {
+    if (middleware.type === type && middleware.collection === collection && middleware.method === method) {
+      results.push(middleware);
+    }
+  }
 
   for (const el of results) {
-    if (el.fn.length === 2) {
-      await new Promise((resolve, reject) => {
-        el.fn(res, (err) => (err ? reject(err) : resolve()));
-      });
-    } else {
-      el.fn(res);
-    }
+    await el.fn(res);
   }
 };
 
@@ -45,5 +63,6 @@ const executeMiddleware = async (type, collection, method, res) => {
 
 module.exports = {
   registerMiddleware,
+  unregisterMiddleware,
   executeMiddleware,
 };
