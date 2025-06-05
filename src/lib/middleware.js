@@ -24,7 +24,7 @@ const registerMiddleware = (type, collection, method, fn) => {
   }
 
   if (getType(fn) !== 'function') {
-    throw new Error(`Invalid middleware function: ${fn}`);
+    throw new Error(`Invalid middleware function: ${fn}`); 
   }
 
   const id = uniqueId();
