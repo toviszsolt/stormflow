@@ -131,6 +131,18 @@ describe('model.updateOne', () => {
     await expect(testModel.updateOne({ name: 'John' }, null)).rejects.toThrow(/updates/);
   });
 
+  it('replace a document', async () => {
+    const data = { name: 'John Replaced', age: 50, address: { city: 'Seattle' } };
+    const updated = await testModel.replaceOne({ name: 'John' }, data);
+    expect(updated.name).toBe('John Replaced');
+    expect(updated.age).toBe(50);
+    expect(updated.address.city).toBe('Seattle');
+    expect(updated._version).toBe(2);
+    expect(updated._updated).toBeDefined();
+    await expect(testModel.replaceOne(null, data)).rejects.toThrow(/query/);
+    await expect(testModel.replaceOne({ name: 'John' }, null)).rejects.toThrow(/updates/);
+  });
+
   it('update a document without schema', async () => {
     const data = { age: 32, address: { city: 'Miami' } };
     const updated = await testModelNoSchema.updateOne({ name: 'John' }, data);
@@ -180,6 +192,11 @@ describe('model.updateOne', () => {
     expect(updated.address).toBeUndefined();
   });
 
+  it('replace a document with $unset', async () => {
+    const data = { $unset: { address: 1 } };
+    expect(() => testModel.replaceOne({ name: 'John' }, data)).rejects.toThrow();
+  });
+
   it('update a document with $unset (non-existing field)', async () => {
     const data = { $unset: { color: 1 } };
     const updated = await testModel.updateOne({ name: 'John' }, data);
@@ -201,6 +218,21 @@ describe('model.updateMany', () => {
   });
 });
 
+describe('model.replaceMany', () => {
+  it('replace many documents', async () => {
+    const data = { name: 'John Replaced', age: 50, address: { city: 'Seattle' } };
+    const updated = await testModel.replaceMany({ name: { $in: ['John', 'Jane'] } }, data);
+    expect(updated.length).toBe(2);
+    expect(updated[0].name).toBe('John Replaced');
+    expect(updated[0].age).toBe(50);
+    expect(updated[0].address.city).toBe('Seattle');
+    expect(updated[0]._version).toBe(2);
+    expect(updated[0]._updated).toBeDefined();
+    await expect(testModel.replaceMany(null, data)).rejects.toThrow(/query/);
+    await expect(testModel.replaceMany({ name: 'John' }, null)).rejects.toThrow(/updates/);
+  });
+});
+
 describe('model.findByIdAndUpdate ', () => {
   it('update a document', async () => {
     const find = await testModel.findOne({ name: 'John' });
@@ -210,6 +242,20 @@ describe('model.findByIdAndUpdate ', () => {
     expect(updated.address.city).toBe('Miami');
     expect(updated._version).toBe(2);
     expect(updated._updated).toBeDefined();
+  });
+});
+
+describe('model.findByIdAndReplace', () => {
+  it('replace a document by id', async () => {
+    const find = await testModel.findOne({ name: 'John' });
+    const replacement = { name: 'John Replaced', age: 50, address: { city: 'Seattle' } };
+    const replaced = await testModel.findByIdAndReplace(find._id, replacement);
+    expect(replaced.name).toBe('John Replaced');
+    expect(replaced.age).toBe(50);
+    expect(replaced.address.city).toBe('Seattle');
+    expect(replaced._version).toBe(2);
+    expect(replaced._updated).toBeDefined();
+    expect(replaced._created).toBeDefined();
   });
 });
 

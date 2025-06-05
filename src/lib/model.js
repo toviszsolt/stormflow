@@ -51,6 +51,7 @@ const model = (collectionName = '', schema = {}) => {
 
   const createItems = async (items) => {
     items = getType(items) === 'array' ? items : [items];
+
     await executeMiddleware('pre', collectionName, 'create', items);
 
     const results = items
@@ -92,19 +93,21 @@ const model = (collectionName = '', schema = {}) => {
     return results;
   };
 
-  const updateItems = async (items, updates, replace = false) => {
+  const updateItems = async (items, updates, replace) => {
+    items = getType(items) === 'array' ? items : [items];
+
     if (getType(updates) !== 'object') {
-      throw new Error('Invalid object type of updates.');
+      const msg = 'Invalid object type of updates.';
+      throw new Error(msg);
     }
 
     let changedItems = 0;
     const timestamp = timeNow();
-
     const operation = replace ? 'replace' : 'update';
+
     await executeMiddleware('pre', collectionName, operation, items);
 
-    items.forEach((el) => {
-      const index = data[collectionName].indexOf(el);
+    const results = items.map((el) => {
       const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
 
       objTraverse(schema, ({ key, value }) => {
@@ -120,13 +123,20 @@ const model = (collectionName = '', schema = {}) => {
 
       let changedFields = 0;
 
-      objTraverse(applyUpdates, ({ value, path, isNode }) => {
-        if (isNode || path.startsWith('$')) return;
-        if (objPathResolve(el, path) !== value) {
-          changedFields++;
-          !replace && objPathSet(el, path, value);
-        }
-      });
+      if (replace) {
+        const original = { _id: el._id, _created: el._created };
+        const newItem = { ...original, ...applyUpdates };
+        el = newItem;
+        changedFields = 1;
+      } else {
+        objTraverse(applyUpdates, ({ value, path, isNode }) => {
+          if (isNode || path.startsWith('$')) return;
+          if (objPathResolve(el, path) !== value) {
+            changedFields++;
+            objPathSet(el, path, value);
+          }
+        });
+      }
 
       if (getType(updates.$unset) === 'object') {
         if (replace) {
@@ -150,23 +160,27 @@ const model = (collectionName = '', schema = {}) => {
           el._updated = timestamp;
         }
 
-        if (replace) {
-          el._id = data[collectionName][index]._id;
-          el._created = data[collectionName][index]._created;
-        }
-
-        data[collectionName][index] = objClone(el);
         changedItems++;
       }
+
+      return el;
     });
 
     if (changedItems > 0) {
+      const mapIds = new Map(data[collectionName].map((el, i) => [el._id, i]));
+
+      results.forEach((el) => {
+        const index = mapIds.get(el._id);
+        if (index === undefined) return;
+        data[collectionName][index] = objClone(el);
+      });
+
       saveDataToFile(collectionName);
     }
 
-    await executeMiddleware('post', collectionName, operation, items);
+    await executeMiddleware('post', collectionName, operation, results);
 
-    return items;
+    return results;
   };
 
   const deleteItems = async (items) => {
@@ -202,14 +216,14 @@ const model = (collectionName = '', schema = {}) => {
   };
 
   const idUpdateReplace = async (id, updates, replace = false) => {
-    const items = await findOne({ _id: id });
-    const results = await updateItems([items], updates, replace);
+    const item = await findOne({ _id: id });
+    const results = await updateItems(item, updates, replace);
     return resolveRefs(results[0]);
   };
 
   const oneUpdateReplace = async (query, updates, replace = false) => {
-    const items = await findOne(query);
-    const results = await updateItems([items], updates, replace);
+    const item = await findOne(query);
+    const results = await updateItems(item, updates, replace);
     return resolveRefs(results[0]);
   };
 
