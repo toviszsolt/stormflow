@@ -29,136 +29,158 @@ const model = (collectionName = '', schema = {}) => {
 
   if (!data[collectionName]) data[collectionName] = [];
 
-  const createItems = (items) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        items = getType(items) === 'array' ? items : [items];
-        await executeMiddleware('pre', collectionName, 'create', items);
+  const findItems = async (query, withRefs = false, withMiddlewares = false) => {
+    if (getType(query) !== 'object') {
+      const msg = 'Invalid object type of query.';
+      throw new Error(msg);
+    }
 
-        const results = items
-          .map((el) => {
-            const newItem = schemaHasProps ? applySchema(el, schema) : el;
-            if (Object.keys(newItem).length > 0) {
-              const timestamp = timeNow();
-              newItem._id = uniqueId();
-              newItem._version = 1;
-              if (config.defaultFields) {
-                newItem._created = timestamp;
-                newItem._updated = timestamp;
-              }
-              return newItem;
-            }
-          })
-          .filter((el) => el !== undefined);
+    if (withMiddlewares) {
+      await executeMiddleware('pre', collectionName, 'find', query);
+    }
 
-        if (results.length > 0) {
-          data[collectionName].push(...objClone(results));
-          saveDataToFile(collectionName);
-        }
+    const preflight = applyQuery(data[collectionName], query);
+    const results = withRefs ? resolveRefs(preflight) : preflight;
 
-        await executeMiddleware('post', collectionName, 'create', results);
+    if (withMiddlewares) {
+      await executeMiddleware('post', collectionName, 'find', results);
+    }
 
-        resolve(results);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    return results;
   };
 
-  const updateItems = (items, updates) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (getType(updates) !== 'object') {
-          const msg = 'Invalid object type of updates.';
-          throw new Error(msg);
-        }
+  const createItems = async (items) => {
+    items = getType(items) === 'array' ? items : [items];
+    await executeMiddleware('pre', collectionName, 'create', items);
 
-        let changedItems = 0;
-        const timestamp = timeNow();
+    const results = items
+      .map((el) => {
+        const newItem = schemaHasProps ? applySchema(el, schema) : el;
 
-        await executeMiddleware('pre', collectionName, 'update', items);
-
-        items.forEach((el) => {
-          let changedFields = 0;
-          const index = data[collectionName].indexOf(el);
-          const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
-
-          objTraverse(applyUpdates, ({ value, path, isNode }) => {
-            if (isNode || path.startsWith('$')) return;
-
-            if (objPathResolve(el, path) !== value) {
-              changedFields++;
-              objPathSet(el, path, value);
+        objTraverse(schema, ({ key, value }) => {
+          if (value.unique) {
+            const val = objPathResolve(newItem, key);
+            if (val === undefined || val === null) return;
+            const duplicated = applyQuery(data[collectionName], { [key]: val });
+            if (duplicated.length > 0) {
+              const msg = `"${key}" field must be unique.`;
+              throw new Error(msg);
             }
-          });
-
-          if (getType(updates.$unset) === 'object') {
-            for (const unsetPath in updates.$unset) {
-              if (objPathResolve(el, unsetPath) !== undefined) {
-                changedFields++;
-                objPathSet(el, unsetPath, undefined);
-              }
-            }
-          }
-
-          if (changedFields) {
-            el._version = (el._version || 1) + 1;
-
-            if (config.defaultFields) {
-              el._created ??= timestamp;
-              el._updated = timestamp;
-            }
-
-            changedItems++;
-            data[collectionName][index] = objClone(el);
           }
         });
 
-        if (changedItems > 0) {
-          saveDataToFile(collectionName);
-        }
-
-        await executeMiddleware('post', collectionName, 'update', items);
-
-        resolve(items);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  };
-
-  const deleteItems = (items) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (items.length > 0) {
-          for (const el of items) {
-            const index = data[collectionName].indexOf(el);
-            data[collectionName].splice(index, 1);
+        if (Object.keys(newItem).length > 0) {
+          const timestamp = timeNow();
+          newItem._id = uniqueId();
+          newItem._version = 1;
+          if (config.defaultFields) {
+            newItem._created = timestamp;
+            newItem._updated = timestamp;
           }
-
-          saveDataToFile(collectionName);
+          return newItem;
         }
+      })
+      .filter((el) => el !== undefined);
 
-        resolve(items);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    if (results.length > 0) {
+      data[collectionName].push(...objClone(results));
+      saveDataToFile(collectionName);
+    }
+
+    await executeMiddleware('post', collectionName, 'create', results);
+
+    return results;
   };
 
-  const find = (query, withRefs = false) => {
-    return new Promise((resolve, reject) => {
-      try {
-        if (getType(query) !== 'object') {
-          const msg = 'Invalid object type of query.';
+  const updateItems = async (items, updates, replace = false) => {
+    if (getType(updates) !== 'object') {
+      throw new Error('Invalid object type of updates.');
+    }
+
+    let changedItems = 0;
+    const timestamp = timeNow();
+
+    const operation = replace ? 'replace' : 'update';
+    await executeMiddleware('pre', collectionName, operation, items);
+
+    items.forEach((el) => {
+      const index = data[collectionName].indexOf(el);
+      const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
+
+      objTraverse(schema, ({ key, value }) => {
+        if (value.unique) {
+          const val = objPathResolve(applyUpdates, key);
+          if (val === undefined || val === null) return;
+          const duplicated = applyQuery(data[collectionName], { [key]: val, _id: { $ne: el._id } });
+          if (duplicated.length > 0) {
+            throw new Error(`"${key}" field must be unique.`);
+          }
+        }
+      });
+
+      let changedFields = 0;
+
+      objTraverse(applyUpdates, ({ value, path, isNode }) => {
+        if (isNode || path.startsWith('$')) return;
+        if (objPathResolve(el, path) !== value) {
+          changedFields++;
+          !replace && objPathSet(el, path, value);
+        }
+      });
+
+      if (getType(updates.$unset) === 'object') {
+        if (replace) {
+          const msg = 'Cannot unset fields in replace operation.';
           throw new Error(msg);
         }
-        const results = applyQuery(data[collectionName], query);
-        resolve(withRefs ? resolveRefs(results) : results);
-      } catch (err) {
-        reject(err);
+
+        for (const unsetPath in updates.$unset) {
+          if (objPathResolve(el, unsetPath) !== undefined) {
+            changedFields++;
+            objPathSet(el, unsetPath, undefined);
+          }
+        }
+      }
+
+      if (changedFields) {
+        el._version = (el._version || 1) + 1;
+
+        if (config.defaultFields) {
+          el._created ??= timestamp;
+          el._updated = timestamp;
+        }
+
+        if (replace) {
+          el._id = data[collectionName][index]._id;
+          el._created = data[collectionName][index]._created;
+        }
+
+        data[collectionName][index] = objClone(el);
+        changedItems++;
       }
     });
+
+    if (changedItems > 0) {
+      saveDataToFile(collectionName);
+    }
+
+    await executeMiddleware('post', collectionName, operation, items);
+
+    return items;
+  };
+
+  const deleteItems = async (items) => {
+    if (items.length > 0) {
+      await executeMiddleware('pre', collectionName, 'delete', items);
+
+      const toDeleteIds = new Set(items.map((el) => el._id));
+      data[collectionName] = data[collectionName].filter((el) => !toDeleteIds.has(el._id));
+      saveDataToFile(collectionName);
+
+      await executeMiddleware('post', collectionName, 'delete', items);
+    }
+
+    return items;
   };
 
   const insertOne = async (item) => {
@@ -179,40 +201,40 @@ const model = (collectionName = '', schema = {}) => {
     return resolveRefs(results);
   };
 
-  const findByIdAndUpdate = async (id, updates) => {
+  const idUpdateReplace = async (id, updates, replace = false) => {
     const items = await findOne({ _id: id });
-    const results = await updateItems([items], updates);
+    const results = await updateItems([items], updates, replace);
     return resolveRefs(results[0]);
   };
 
-  const updateOne = async (query, updates) => {
+  const oneUpdateReplace = async (query, updates, replace = false) => {
     const items = await findOne(query);
-    const results = await updateItems([items], updates);
+    const results = await updateItems([items], updates, replace);
     return resolveRefs(results[0]);
   };
 
-  const updateMany = async (query, updates) => {
-    const items = await find(query);
-    const results = await updateItems(items, updates);
+  const manyUpdateReplace = async (query, updates, replace = false) => {
+    const items = await findItems(query);
+    const results = await updateItems(items, updates, replace);
     return resolveRefs(results);
   };
 
-  const findOne = async (query, withRefs = false) => {
-    const results = await find(query);
+  const findOne = async (query, withRefs = false, withMiddlewares = false) => {
+    const results = await findItems(query, false, withMiddlewares);
     return withRefs ? resolveRefs(results[0]) : results[0];
   };
 
-  const findById = async (id, withRefs = false) => {
+  const findById = async (id, withRefs = false, withMiddlewares = false) => {
     if (!id || getType(id) !== 'string') {
       const msg = 'Invalid string type of id.';
       throw new Error(msg);
     }
-    const results = await find({ _id: id });
+    const results = await findItems({ _id: id }, false, withMiddlewares);
     return withRefs ? resolveRefs(results[0]) : results[0];
   };
 
   const count = async (query) => {
-    const results = await find(query);
+    const results = await findItems(query);
     return results.length;
   };
 
@@ -234,30 +256,28 @@ const model = (collectionName = '', schema = {}) => {
   };
 
   const deleteMany = async (query) => {
-    const items = await find(query);
+    const items = await findItems(query);
     const results = await deleteItems(items);
     return resolveRefs(results);
   };
 
   return {
     // Implement methods:
-    //
-    // insertOne, insertMany
-    // updateOne, updateMany, findByIdAndUpdate
-    // replaceOne, findByIdAndReplace
-    // deleteOne, deleteMany, findByIdAndDelete
-    // count, exists, schema, validate
+    // schema, validate
     pre: (method, fn) => registerMiddleware('pre', collectionName, method, fn),
     post: (method, fn) => registerMiddleware('post', collectionName, method, fn),
-    find: async (query) => await find(query, true),
-    findOne: async (query) => await findOne(query, true),
-    findById: async (query) => await findById(query, true),
-    findByIdAndUpdate,
+    find: async (query) => await findItems(query, true, true),
+    findOne: async (query) => await findOne(query, true, true),
+    findById: async (query) => await findById(query, true, true),
+    findByIdAndReplace: async (id, updates) => await idUpdateReplace(id, updates, true),
+    findByIdAndUpdate: async (id, updates) => await idUpdateReplace(id, updates),
     findByIdAndDelete,
     insertOne,
     insertMany,
-    updateOne,
-    updateMany,
+    updateOne: async (query, updates) => await oneUpdateReplace(query, updates),
+    updateMany: async (query, updates) => await manyUpdateReplace(query, updates),
+    replaceOne: async (query, updates) => await oneUpdateReplace(query, updates, true),
+    replaceMany: async (query, updates) => await manyUpdateReplace(query, updates, true),
     deleteOne,
     deleteMany,
     count,

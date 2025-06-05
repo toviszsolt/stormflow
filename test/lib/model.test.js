@@ -303,7 +303,7 @@ describe('model.findOne', () => {
 
 describe('model.pre', () => {
   it('pre save hook', async () => {
-    const preHook = jest.fn((doc, next) => next());
+    const preHook = jest.fn();
     testModel.pre('create', preHook);
     const data = { name: 'Loren', age: 35, address: { city: 'Manhattan' } };
     await testModel.insertOne(data);
@@ -313,7 +313,7 @@ describe('model.pre', () => {
 
 describe('model.post', () => {
   it('post save hook', async () => {
-    const postHook = jest.fn((doc, next) => next());
+    const postHook = jest.fn();
     testModel.post('create', postHook);
     const data = { name: 'Loren', age: 35, address: { city: 'Manhattan' } };
     await testModel.insertOne(data);
@@ -361,5 +361,50 @@ describe('additional tests for model', () => {
   it('count rejects when query is missing or invalid', async () => {
     await expect(testModel.count()).rejects.toThrow(/query/);
     await expect(testModel.count(null)).rejects.toThrow(/query/);
+  });
+});
+
+describe('Model update unique field validation', () => {
+  let users;
+
+  beforeAll(() => {
+    users = model('users', {
+      email: { type: 'string', unique: true },
+      name: { type: 'string' },
+    });
+  });
+
+  beforeEach(async () => {
+    await users.deleteMany({});
+  });
+
+  test('should throw error when inserting duplicate unique field', async () => {
+    await users.insertOne({ email: 'a@example.com', name: 'User A' });
+    await expect(users.insertOne({ email: 'a@example.com', name: 'User B' })).rejects.toThrow();
+  });
+
+  test('should not throw error when inserting null unique field', async () => {
+    const user = await users.insertOne({ email: undefined, name: 'User A' });
+    expect(user.email).toBe(undefined);
+  });
+
+  test('should throw error when updating to duplicate unique field', async () => {
+    await users.insertOne({ email: 'a@example.com', name: 'User A' });
+    const user2 = await users.insertOne({ email: 'b@example.com', name: 'User B' });
+
+    await expect(users.updateOne({ _id: user2._id }, { email: 'a@example.com' })).rejects.toThrow();
+  });
+
+  test('should allow updating unique field if no conflict', async () => {
+    const user = await users.insertOne({ email: 'c@example.com', name: 'User C' });
+    const updated = await users.updateOne({ _id: user._id }, { email: 'd@example.com' });
+    expect(updated.email).toBe('d@example.com');
+  });
+
+  test('should allow updating non-unique fields freely', async () => {
+    const user = await users.insertOne({ email: 'e@example.com', name: 'User E' });
+    const updated = await users.updateOne({ _id: user._id }, { name: 'New Name' });
+    expect(updated.name).toBe('New Name');
+    expect(updated.email).toBe('e@example.com');
   });
 });
