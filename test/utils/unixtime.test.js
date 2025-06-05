@@ -40,4 +40,13 @@ describe('timeToDateStr', () => {
       .replace(/(A|P)M/, '$1.M.');
     expect(timeToDateStr(unixTime, customFormat)).toBe(expextedDate);
   });
+
+  test('offset contains the "-" sign if timezoneOffset is positive', () => {
+    const originalGetTimezoneOffset = Date.prototype.getTimezoneOffset;
+    Date.prototype.getTimezoneOffset = jest.fn(() => 120);
+    const timestamp = 1700000000;
+    const result = timeToDateStr(timestamp, '%offset');
+    expect(result).toBe('GMT-02:00');
+    Date.prototype.getTimezoneOffset = originalGetTimezoneOffset;
+  });
 });
