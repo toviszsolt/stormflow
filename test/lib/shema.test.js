@@ -223,6 +223,35 @@ describe('applySchema', () => {
     expect(result).toEqual(source);
   });
 
+  // New tests start
+
+  it('should throw an error if required field is missing in strict mode', () => {
+    const schema = Schema({ name: { type: String, required: true } });
+    const fn = () => applySchema({}, schema);
+    expect(fn).toThrow();
+  });
+
+  it('should throw an error if required field is missing in non-strict mode', () => {
+    setStrictMode(false);
+    const schema = Schema({ name: { type: String, required: true } });
+    const fn = () => applySchema({}, schema);
+    expect(fn).toThrow();
+  });
+
+  it('should use default value if defined, even if required is not present', () => {
+    const schema = Schema({ age: { type: Number, default: 18 } });
+    const result = applySchema({}, schema);
+    expect(result).toEqual({ age: 18 });
+  });
+
+  it('should throw at schema time if both default and required are present', () => {
+    expect(() => {
+      Schema({ test: { type: String, required: true, default: 'fail' } });
+    }).toThrow();
+  });
+
+  // New tests end
+
   it('should use default if value is missing in non-strict mode', () => {
     const schema = Schema({ name: { type: String, default: 'Anonymous' } });
 

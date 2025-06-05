@@ -114,6 +114,12 @@ const applySchema = (source, schema) => {
     // Init array nodes
     if (typeSchema === 'array') objPathSet(target, path, []);
 
+    // Validate required field
+    if (value.required && valueSource === undefined) {
+      const msg = `Missing required field "${path}".`;
+      throw new Error(msg);
+    }
+
     // Skip undefined source value and array item
     if (valueSource === undefined || typeParent === 'array') return;
 
@@ -126,7 +132,7 @@ const applySchema = (source, schema) => {
     // Handle refs
     if (value.$ref) {
       const ref = { _ref: { collection: value?.$ref, id: valueSource?._id } };
-      objPathSet(target, path.replace(/.$ref/g, ''), ref);
+      objPathSet(target, path.replace(/\.\$ref$/g, ''), ref);
       return;
     }
 
