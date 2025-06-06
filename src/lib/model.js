@@ -68,6 +68,13 @@ const model = (collectionName = '', schema = {}) => {
               throw new Error(msg);
             }
           }
+
+          if (value.required) {
+            const val = objPathResolve(newItem, key) || objPathResolve(el, key);
+            if (val === undefined || val === null) {
+              throw new Error(`"${key}" field is required.`);
+            }
+          }
         });
 
         if (Object.keys(newItem).length > 0) {
@@ -117,6 +124,13 @@ const model = (collectionName = '', schema = {}) => {
           const duplicated = applyQuery(data[collectionName], { [key]: val, _id: { $ne: el._id } });
           if (duplicated.length > 0) {
             throw new Error(`"${key}" field must be unique.`);
+          }
+        }
+
+        if (value.required) {
+          const val = objPathResolve(applyUpdates, key) || objPathResolve(el, key);
+          if (val === undefined || val === null) {
+            throw new Error(`"${key}" field is required.`);
           }
         }
       });
