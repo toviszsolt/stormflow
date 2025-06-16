@@ -104,6 +104,10 @@ const objPathSet = (obj, path, value) => {
     const key = isIndex ? Number(rawKey) : rawKey;
     const isLast = i === keys.length - 1;
 
+    if (key === '__proto__' || key === 'constructor') {
+      continue;
+    }
+
     if (isLast) {
       if (value === undefined) {
         Array.isArray(node) ? node.splice(Number(key), 1) : delete node[key];
