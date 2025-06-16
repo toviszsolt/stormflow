@@ -115,8 +115,6 @@ export interface StormFlowStats {
 export interface StormFlowUtils {
   /** Deep-clone an object or array */
   objClone(obj: any): any;
-  /** Serialize an object by JSON round-trip */
-  objSerialize<T>(obj: T): T;
   /** Get value from object by dot-notated path */
   objPathResolve(obj: any, path: string): any;
   /** Set or delete value in object by dot-notated path */

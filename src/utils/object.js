@@ -1,13 +1,4 @@
 /**
- * Serialize an object
- * @param {object} obj The object to serialize
- * @returns {*} The serialized object
- */
-const objSerialize = (obj) => {
-  return obj === undefined ? undefined : JSON.parse(JSON.stringify(obj));
-};
-
-/**
  * Deep clone an object
  * @param {object} obj The object to clone
  * @returns {object} The cloned object
@@ -15,13 +6,20 @@ const objSerialize = (obj) => {
 const objClone = (obj) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
-  const clone = Array.isArray(obj) ? [] : {};
-
-  for (const [key, value] of Object.entries(obj)) {
-    clone[key] = objClone(value);
+  if (Array.isArray(obj)) {
+    const clone = new Array(obj.length);
+    for (let i = 0; i < obj.length; i++) {
+      clone[i] = objClone(obj[i]);
+    }
+    return clone;
+  } else {
+    const clone = {};
+    const keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i++) {
+      clone[keys[i]] = objClone(obj[keys[i]]);
+    }
+    return clone;
   }
-
-  return clone;
 };
 
 /**
@@ -32,20 +30,22 @@ const objClone = (obj) => {
  * @returns {void}
  */
 const traverse = (parent, parentPath, callback) => {
-  if (typeof parent !== 'object' || parent === null) return parent;
+  if (typeof parent !== 'object' || parent === null) return;
 
-  for (const key of Object.keys(parent)) {
+  const keys = Object.keys(parent);
+  const parentPathIsEmpty = !parentPath;
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
     const value = parent[key];
-    const path = parentPath ? `${parentPath}.${key}` : key;
-    const result = { key, value, parent, path, parentPath: parentPath || null };
+    const path = parentPathIsEmpty ? key : `${parentPath}.${key}`;
+    const _parentPath = parentPathIsEmpty ? null : parentPath;
+    const isNode = typeof value === 'object' && value !== null;
+
+    callback({ key, value, parent, path, parentPath: _parentPath, isNode });
 
     if (typeof value === 'object' && value !== null) {
-      result.isNode = true;
-      callback(result);
       traverse(value, path, callback);
-    } else {
-      result.isNode = false;
-      callback(result);
     }
   }
 };
@@ -122,4 +122,4 @@ const objPathSet = (obj, path, value) => {
   }
 };
 
-export { objClone, objPathResolve, objPathSet, objSerialize, objTraverse };
+export { objClone, objPathResolve, objPathSet, objTraverse };

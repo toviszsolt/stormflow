@@ -1,30 +1,4 @@
-import { objClone, objPathResolve, objPathSet, objSerialize, objTraverse } from '../../src/utils/object.js';
-
-describe('objSerialize', () => {
-  it('serialize object correctly', () => {
-    const obj = { a: 1, b: { c: 2 } };
-    const serialized = objSerialize(obj);
-    expect(serialized).toEqual(obj);
-  });
-
-  it('serialize array correctly', () => {
-    const obj = [1, null, 2];
-    const serialized = objSerialize(obj);
-    expect(serialized).toEqual(obj);
-  });
-
-  it('serialize null and undefined correctly', () => {
-    expect(objSerialize(null)).toBeNull();
-    expect(objSerialize(undefined)).toBeUndefined();
-  });
-
-  it('serialize primitives correctly', () => {
-    expect(objSerialize(123)).toBe(123);
-    expect(objSerialize('it')).toBe('it');
-    expect(objSerialize(true)).toBe(true);
-    expect(objSerialize(false)).toBe(false);
-  });
-});
+import { objClone, objPathResolve, objPathSet, objTraverse } from '../../src/utils/object.js';
 
 describe('objClone', () => {
   it('clone object correctly', () => {
