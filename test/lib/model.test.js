@@ -1,7 +1,7 @@
-const { defaultConfig, setConfig } = require('../../src/lib/config');
-const model = require('../../src/lib/model');
-const { Schema } = require('../../src/lib/schema');
-const { data } = require('../../src/lib/storage');
+import { defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
+import model from '../../src/lib/model.js';
+import { Schema } from '../../src/lib/schema.js';
+import { data } from '../../src/lib/storage.js';
 
 const resetConfig = () => {
   setConfig({ ...defaultConfig, diskWrite: false });
@@ -371,7 +371,7 @@ describe('additional tests for model', () => {
   it('resetConfig sets config to defaultConfig with diskWrite false', () => {
     setConfig({ diskWrite: true, defaultFields: false });
     resetConfig();
-    const currentConfig = require('../../src/lib/config').getConfig?.() || {};
+    const currentConfig = getConfig() || {};
     expect(currentConfig.diskWrite).toBe(false);
     expect(currentConfig.defaultFields).toBe(defaultConfig.defaultFields);
   });

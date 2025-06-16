@@ -1,5 +1,5 @@
-const { uniqueId } = require('../utils/hash');
-const { getType } = require('../utils/type');
+import { uniqueId } from '../utils/hash.js';
+import { getType } from '../utils/type.js';
 
 const middlewares = new Map();
 
@@ -24,7 +24,7 @@ const registerMiddleware = (type, collection, method, fn) => {
   }
 
   if (getType(fn) !== 'function') {
-    throw new Error(`Invalid middleware function: ${fn}`); 
+    throw new Error(`Invalid middleware function: ${fn}`);
   }
 
   const id = uniqueId();
@@ -61,8 +61,4 @@ const executeMiddleware = async (type, collection, method, res) => {
   }
 };
 
-module.exports = {
-  registerMiddleware,
-  unregisterMiddleware,
-  executeMiddleware,
-};
+export { executeMiddleware, registerMiddleware, unregisterMiddleware };

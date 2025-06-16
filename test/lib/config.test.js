@@ -1,4 +1,4 @@
-const { config, defaultConfig, setConfig, getConfig } = require('../../src/lib/config');
+import { config, defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
 
 beforeEach(() => {
   setConfig(defaultConfig);

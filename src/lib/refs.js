@@ -1,6 +1,6 @@
-const { objClone, objTraverse, objPathSet } = require('../utils/object');
-const { getType } = require('../utils/type');
-const { data } = require('./storage');
+import { objClone, objPathSet, objTraverse } from '../utils/object.js';
+import { getType } from '../utils/type.js';
+import { data } from './storage.js';
 
 const resolveRefs = (items) => {
   if (['object', 'array'].includes(getType(items))) {
@@ -28,4 +28,4 @@ const resolveRefs = (items) => {
   }
 };
 
-module.exports = { resolveRefs };
+export { resolveRefs };

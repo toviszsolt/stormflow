@@ -1,10 +1,11 @@
 const collectionThrottle = {};
 
-const fs = require('fs');
-const path = require('path');
-const zlib = require('zlib');
-const { config } = require('./config');
-const { objClone } = require('../utils/object');
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+import path from 'path';
+import zlib from 'zlib';
+import { objClone } from '../utils/object.js';
+import { config } from './config.js';
 
 let init = false;
 let backupTimer;
@@ -112,37 +113,38 @@ const saveDataToFile = (collectionName) => {
   }
 };
 
-const writeThrottled = (collectionName) => {
+const writeThrottled = async (collectionName) => {
+  const filename = `${collectionName}.json`;
+  const tmpFile = path.join(config.dataDirectory, `${filename}.tmp`);
+  const targetFile = path.join(config.dataDirectory, filename);
+  const dataToSave = JSON.stringify(data[collectionName]);
+
+  if (config.verbose) console.log(logPrefix, `Writing data to temp file: ${tmpFile}`);
+
+  let fd;
   try {
-    const filename = `${collectionName}.json`;
-    const tmpFile = path.join(config.dataDirectory, `${filename}.tmp`);
-    const targetFile = path.join(config.dataDirectory, filename);
-    const dataToSave = JSON.stringify(data[collectionName]);
-
-    fs.writeFile(tmpFile, dataToSave, { encoding: 'utf8', flag: 'w' }, (err) => {
-      config.verbose && console.log(logPrefix, `Write data to temp file: ${tmpFile}`);
-      if (err) return console.error('Error writing data to temp file:', tmpFile, err.message);
-
-      setTimeout(() => {
-        // defer next file access with 50ms due EPERM: operation not permitted
-        fs.rename(tmpFile, targetFile, (err) => {
-          config.verbose && console.log(logPrefix, `Move data to final file: ${targetFile}`);
-          if (err) return console.error('Error writing data to file:', targetFile, err.message);
-
-          collectionThrottle[collectionName] = false;
-          stats.diskWrites[collectionName] ??= 0;
-          stats.diskWrites[collectionName]++;
-        });
-      }, 50);
-    });
-  } catch (error) {
-    console.error('Error writing data to file:', collectionName, error.message);
+    fd = await fsPromises.open(tmpFile, 'w');
+    await fd.write(dataToSave, 0, 'utf8');
+    await fd.sync();
+  } catch (err) {
+    console.error('Error writing data to temp file:', tmpFile, err.message);
+  } finally {
+    if (fd) await fd.close();
   }
+
+  config.verbose && console.log(logPrefix, `Move data to final file: ${targetFile}`);
+
+  try {
+    await fsPromises.rename(tmpFile, targetFile);
+  } catch (err) {
+    console.error('Error writing data to file:', targetFile, err.message);
+  }
+
+  if (config.verbose) console.log(logPrefix, `Moved temp file to final file: ${targetFile}`);
+
+  collectionThrottle[collectionName] = false;
+  stats.diskWrites[collectionName] ??= 0;
+  stats.diskWrites[collectionName]++;
 };
 
-module.exports = {
-  data,
-  diskStats,
-  initFileStorage,
-  saveDataToFile,
-};
+export { data, diskStats, initFileStorage, saveDataToFile };

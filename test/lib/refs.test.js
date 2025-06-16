@@ -1,7 +1,7 @@
-const { setConfig } = require('../../src/lib/config');
-const { resolveRefs } = require('../../src/lib/refs');
-const { Schema } = require('../../src/lib/schema');
-const model = require('../../src/lib/model');
+import { setConfig } from '../../src/lib/config.js';
+import model from '../../src/lib/model.js';
+import { resolveRefs } from '../../src/lib/refs.js';
+import { Schema } from '../../src/lib/schema.js';
 
 setConfig({ diskWrite: false });
 

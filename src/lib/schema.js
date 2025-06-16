@@ -1,7 +1,7 @@
-const { config } = require('./config');
-const { objClone, objTraverse, objPathResolve, objPathSet } = require('../utils/object');
-const { getType } = require('../utils/type');
-const { timeFromStr } = require('../utils/unixtime');
+import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
+import { getType } from '../utils/type.js';
+import { timeFromStr } from '../utils/unixtime.js';
+import { config } from './config.js';
 
 const allowedTypes = ['string', 'number', 'boolean', 'date'];
 const allowedDefinitions = ['type', 'required', 'default', 'unique', '$ref'];
@@ -167,4 +167,4 @@ const applySchema = (source, schema) => {
   return target;
 };
 
-module.exports = { Schema, applySchema };
+export { applySchema, Schema };

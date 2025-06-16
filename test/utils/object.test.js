@@ -1,4 +1,4 @@
-const { objSerialize, objClone, objTraverse, objPathResolve, objPathSet } = require('../../src/utils/object');
+import { objClone, objPathResolve, objPathSet, objSerialize, objTraverse } from '../../src/utils/object.js';
 
 describe('objSerialize', () => {
   it('serialize object correctly', () => {

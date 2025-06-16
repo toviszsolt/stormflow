@@ -1,13 +1,13 @@
-const { uniqueId } = require('../utils/hash');
-const { objClone, objTraverse, objPathResolve, objPathSet } = require('../utils/object');
-const { getType } = require('../utils/type');
-const { timeNow } = require('../utils/unixtime');
-const { config } = require('./config');
-const { registerMiddleware, executeMiddleware } = require('./middleware');
-const { applyQuery } = require('./query');
-const { resolveRefs } = require('./refs');
-const { applySchema } = require('./schema');
-const { data, saveDataToFile } = require('./storage');
+import { uniqueId } from '../utils/hash.js';
+import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
+import { getType } from '../utils/type.js';
+import { timeNow } from '../utils/unixtime.js';
+import { config } from './config.js';
+import { executeMiddleware, registerMiddleware } from './middleware.js';
+import { applyQuery } from './query.js';
+import { resolveRefs } from './refs.js';
+import { applySchema } from './schema.js';
+import { data, saveDataToFile } from './storage.js';
 
 const model = (collectionName = '', schema = {}) => {
   const schemaHasProps = Object.keys(schema).length > 0;
@@ -91,7 +91,8 @@ const model = (collectionName = '', schema = {}) => {
       .filter((el) => el !== undefined);
 
     if (results.length > 0) {
-      data[collectionName].push(...objClone(results));
+      const clone = objClone(results);
+      data[collectionName].push(...clone);
       saveDataToFile(collectionName);
     }
 
@@ -313,4 +314,4 @@ const model = (collectionName = '', schema = {}) => {
   };
 };
 
-module.exports = model;
+export default model;

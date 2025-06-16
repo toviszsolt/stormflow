@@ -1,5 +1,5 @@
-const fs = require('fs');
-const crypto = require('crypto');
+import crypto from 'crypto';
+import fs from 'fs';
 
 /**
  * UNUSED MODULE
@@ -38,4 +38,4 @@ function decryptFile(inputPath, outputPath) {
 // encryptFile(inputFile, encryptedFile);
 // decryptFile(encryptedFile, decryptedFile);
 
-module.exports = { encryptFile, decryptFile };
+export { decryptFile, encryptFile };

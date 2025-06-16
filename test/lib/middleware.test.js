@@ -1,4 +1,4 @@
-const { registerMiddleware, unregisterMiddleware, executeMiddleware } = require('../../src/lib/middleware');
+import { executeMiddleware, registerMiddleware, unregisterMiddleware } from '../../src/lib/middleware.js';
 
 describe('Middleware module', () => {
   describe('registerMiddleware', () => {

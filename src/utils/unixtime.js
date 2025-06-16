@@ -70,4 +70,4 @@ const timeToDateStr = (unixTimestamp, format = '%Y-%M-%D %H:%I:%S') => {
   return formattedDate;
 };
 
-module.exports = { timeNow, timeFromStr, timeToDateObj, timeToDateStr };
+export { timeFromStr, timeNow, timeToDateObj, timeToDateStr };

@@ -1,4 +1,4 @@
-const { getType } = require('../../src/utils/type');
+import { getType } from '../../src/utils/type.js';
 
 describe('getType', () => {
   it('returns correct type for values', () => {

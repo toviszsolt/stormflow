@@ -1,6 +1,6 @@
-const path = require('path');
-const { objClone } = require('../utils/object');
-const { getType } = require('../utils/type');
+import path from 'path';
+import { objClone } from '../utils/object.js';
+import { getType } from '../utils/type.js';
 
 /**
  * @typedef {Object} Config
@@ -79,4 +79,4 @@ const setConfig = (options) => {
   Object.assign(config, defaultConfig, options);
 };
 
-module.exports = { config, defaultConfig, setConfig, getConfig };
+export { config, defaultConfig, getConfig, setConfig };

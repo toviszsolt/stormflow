@@ -1,8 +1,6 @@
-// yourModule.test.js
-
-const fs = require('fs');
-const { initFileStorage, data, saveDataToFile } = require('../../src/lib/storage');
-const { defaultConfig, setConfig } = require('../../src/lib/config');
+import fs from 'fs';
+import { defaultConfig, setConfig } from '../../src/lib/config.js';
+import { data, initFileStorage, saveDataToFile } from '../../src/lib/storage.js';
 
 jest.mock('fs');
 

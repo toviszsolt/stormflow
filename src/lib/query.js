@@ -1,5 +1,5 @@
-const { objPathResolve } = require('../utils/object');
-const { getType } = require('../utils/type');
+import { objPathResolve } from '../utils/object.js';
+import { getType } from '../utils/type.js';
 
 const applyQuery = (collection, query) => {
   if (!query || typeof query !== 'object' || Array.isArray(query)) {
@@ -52,4 +52,4 @@ const applyQuery = (collection, query) => {
   });
 };
 
-module.exports = { applyQuery };
+export { applyQuery };

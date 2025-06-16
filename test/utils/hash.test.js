@@ -1,4 +1,4 @@
-const { uniqueId } = require('../../src/utils/hash');
+import { uniqueId } from '../../src/utils/hash.js';
 
 describe('uniqueId', () => {
   it('generate a unique id', () => {

@@ -10,4 +10,4 @@ const getType = (variable) => {
   return typeof variable;
 };
 
-module.exports = { getType };
+export { getType };

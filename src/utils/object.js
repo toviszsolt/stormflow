@@ -16,7 +16,10 @@ const objClone = (obj) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   const clone = Array.isArray(obj) ? [] : {};
-  Object.keys(obj).forEach((key) => (clone[key] = objClone(obj[key])));
+
+  for (const [key, value] of Object.entries(obj)) {
+    clone[key] = objClone(value);
+  }
 
   return clone;
 };
@@ -31,7 +34,7 @@ const objClone = (obj) => {
 const traverse = (parent, parentPath, callback) => {
   if (typeof parent !== 'object' || parent === null) return parent;
 
-  Object.keys(parent).forEach((key) => {
+  for (const key of Object.keys(parent)) {
     const value = parent[key];
     const path = parentPath ? `${parentPath}.${key}` : key;
     const result = { key, value, parent, path, parentPath: parentPath || null };
@@ -44,7 +47,7 @@ const traverse = (parent, parentPath, callback) => {
       result.isNode = false;
       callback(result);
     }
-  });
+  }
 };
 
 /**
@@ -115,4 +118,4 @@ const objPathSet = (obj, path, value) => {
   }
 };
 
-module.exports = { objSerialize, objClone, objTraverse, objPathResolve, objPathSet };
+export { objClone, objPathResolve, objPathSet, objSerialize, objTraverse };
