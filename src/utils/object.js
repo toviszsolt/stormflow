@@ -23,6 +23,29 @@ const objClone = (obj) => {
 };
 
 /**
+ * @typedef {object} PropertyInfo
+ * @property  {string} key The key of the property
+ * @property  {any} value The value of the property
+ * @property  {boolean} isNode Whether the property is a node or not
+ * @property  {object} parent The parent property
+ * @property  {string} path The path of the property
+ * @property  {string} parentPath The path of the parent property
+ */
+
+/**
+ * @callback traverseCallback
+ * @param {PropertyInfo} info The information about the property
+ */
+
+/**
+ * Traverse through an object
+ * @param {object} obj The object to traverse
+ * @param {traverseCallback} callback The callback function to call for each property
+ * @returns {void}
+ */
+const objTraverse = (obj, callback) => traverse(obj, '', callback);
+
+/**
  * Traverse through an object
  * @param {object} parent The object to traverse
  * @param {string} parentPath The path of the parent object, e.g. 'a.b.c'
@@ -51,29 +74,6 @@ const traverse = (parent, parentPath, callback) => {
 };
 
 /**
- * @typedef {object} PropertyInfo
- * @property  {string} key The key of the property
- * @property  {any} value The value of the property
- * @property  {boolean} isNode Whether the property is a node or not
- * @property  {object} parent The parent property
- * @property  {string} path The path of the property
- * @property  {string} parentPath The path of the parent property
- */
-
-/**
- * @callback traverseCallback
- * @param {PropertyInfo} info The information about the property
- */
-
-/**
- * Traverse through an object
- * @param {object} obj The object to traverse
- * @param {traverseCallback} callback The callback function to call for each property
- * @returns {void}
- */
-const objTraverse = (obj, callback) => traverse(obj, '', callback);
-
-/**
  * Resolve a path in an object
  * @param {object} obj The object to resolve the path in
  * @param {string} path The path to resolve in the object, e.g. 'a.b.c'
@@ -81,10 +81,18 @@ const objTraverse = (obj, callback) => traverse(obj, '', callback);
  */
 const objPathResolve = (obj, path) => {
   if (!path) return obj;
-  obj = obj || {};
-  const properties = path.split('.');
 
-  return objPathResolve(obj[properties.shift()], properties.join('.'));
+  obj = obj || {};
+
+  const properties = path.split('.');
+  let current = obj;
+
+  for (let i = 0; i < properties.length; i++) {
+    if (current == null) return undefined;
+    current = current[properties[i]];
+  }
+
+  return current;
 };
 
 /**
@@ -100,23 +108,29 @@ const objPathSet = (obj, path, value) => {
 
   for (let i = 0; i < keys.length; i++) {
     const rawKey = keys[i];
-    const isIndex = Number.isInteger(Number(rawKey));
-    const key = isIndex ? Number(rawKey) : rawKey;
-    const isLast = i === keys.length - 1;
 
-    if (key === '__proto__' || key === 'constructor') {
-      continue;
-    }
+    const isIndex = rawKey === `${+rawKey}`;
+    const key = isIndex ? +rawKey : rawKey;
+    const isLast = i === keys.length - 1;
 
     if (isLast) {
       if (value === undefined) {
-        Array.isArray(node) ? node.splice(Number(key), 1) : delete node[key];
+        if (Array.isArray(node)) {
+          node.splice(Number(key), 1);
+        } else {
+          delete node[key];
+        }
       } else {
         node[key] = value;
       }
     } else {
-      const nextIsIndex = Number.isInteger(Number(keys[i + 1]));
-      if (!(key in node)) node[key] = nextIsIndex ? [] : {};
+      const nextRaw = keys[i + 1];
+      const nextIsIndex = nextRaw === `${+nextRaw}`;
+
+      if (!(key in node) || node[key] === null) {
+        node[key] = nextIsIndex ? [] : {};
+      }
+
       node = node[key];
     }
   }
