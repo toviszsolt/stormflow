@@ -2,7 +2,7 @@
 [![npm](https://img.shields.io/npm/v/stormflow?style=flat&color=red)](https://www.npmjs.com/package/@toviszsolt/stormflow)
 [![GitHub Repo stars](https://img.shields.io/github/stars/toviszsolt/stormflow?color=DAAA3F)](https://github.com/toviszsolt/stormflow/stargazers)
 [![Run tests](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml/badge.svg)](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/toviszsolt/stormflow/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow)
+[![codecov](https://codecov.io/gh/toviszsolt/stormflow/branch/main/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow)
 [![Sponsor](https://img.shields.io/static/v1?label=sponsor&message=❤&color=ff69b4)](https://github.com/sponsors/toviszsolt)
 
 # StormFlow
@@ -222,6 +222,7 @@ To learn about the guidelines, please read the [Code of Conduct](./CODE_OF_CONDU
 MIT License @ 2022 [Zsolt Tövis](https://github.com/toviszsolt)
 
 If you found this project interesting, please consider supporting my open source work by
+
 [sponsoring me on GitHub](https://github.com/sponsors/toviszsolt) /
 [sponsoring me on PayPal](https://www.paypal.com/paypalme/toviszsolt) /
 [give the repo a star](https://github.com/toviszsolt/stormflow).
