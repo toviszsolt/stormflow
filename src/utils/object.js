@@ -108,10 +108,11 @@ const objPathSet = (obj, path, value) => {
 
   for (let i = 0; i < keys.length; i++) {
     const rawKey = keys[i];
-
     const isIndex = rawKey === `${+rawKey}`;
     const key = isIndex ? +rawKey : rawKey;
     const isLast = i === keys.length - 1;
+
+    if (['__proto__', 'constructor'].includes(rawKey)) return;
 
     if (isLast) {
       if (value === undefined) {
