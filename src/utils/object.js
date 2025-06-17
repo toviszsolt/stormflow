@@ -110,6 +110,10 @@ const objPathSet = (obj, path, value) => {
     const rawKey = keys[i];
     const isIndex = rawKey === `${+rawKey}`;
     const key = isIndex ? +rawKey : rawKey;
+
+    // Block prototype pollution for all keys
+    if (['__proto__', 'constructor'].includes(String(key))) return;
+
     const isLast = i === keys.length - 1;
 
     if (isLast) {
@@ -120,7 +124,6 @@ const objPathSet = (obj, path, value) => {
           delete node[key];
         }
       } else {
-        if (['__proto__', 'constructor'].includes(String(key))) return;
         node[key] = value;
       }
     } else {
