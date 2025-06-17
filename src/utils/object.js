@@ -111,7 +111,6 @@ const objPathSet = (obj, path, value) => {
     const isIndex = rawKey === `${+rawKey}`;
     const key = isIndex ? +rawKey : rawKey;
 
-    // Block prototype pollution for all keys
     if (['__proto__', 'constructor'].includes(String(key))) return;
 
     const isLast = i === keys.length - 1;
