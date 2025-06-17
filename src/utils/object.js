@@ -112,7 +112,7 @@ const objPathSet = (obj, path, value) => {
     const key = isIndex ? +rawKey : rawKey;
     const isLast = i === keys.length - 1;
 
-    if (['__proto__', 'constructor'].includes(rawKey)) return;
+    if (['__proto__', 'constructor'].includes(String(key))) return;
 
     if (isLast) {
       if (value === undefined) {
