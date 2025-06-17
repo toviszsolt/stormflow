@@ -112,8 +112,6 @@ const objPathSet = (obj, path, value) => {
     const key = isIndex ? +rawKey : rawKey;
     const isLast = i === keys.length - 1;
 
-    if (['__proto__', 'constructor'].includes(String(key))) return;
-
     if (isLast) {
       if (value === undefined) {
         if (Array.isArray(node)) {
@@ -122,6 +120,7 @@ const objPathSet = (obj, path, value) => {
           delete node[key];
         }
       } else {
+        if (['__proto__', 'constructor'].includes(String(key))) return;
         node[key] = value;
       }
     } else {
