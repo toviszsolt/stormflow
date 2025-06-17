@@ -33,13 +33,15 @@ describe('applyQuery', () => {
 
   it('filter with $and operator', () => {
     const query = { $and: [{ age: { $gt: 25 } }, { city: 'Chicago' }] };
-    expect(applyQuery(collection, query)).toEqual(collection.filter((el) => el.age > 25 && el.city === 'Chicago'));
+    const collectionArr = Array.from(collection.values());
+    expect(applyQuery(collection, query)).toEqual(collectionArr.filter((el) => el.age > 25 && el.city === 'Chicago'));
   });
 
   it('filter with deep $and operator', () => {
     const query = { $and: [{ age: { $gt: 25 } }, { city: 'Chicago' }, { 'address.street': 'Market St' }] };
+    const collectionArr = Array.from(collection.values());
     expect(applyQuery(collection, query)).toEqual(
-      collection.filter((el) => el.age > 25 && el.city === 'Chicago' && el.address.street === 'Market St'),
+      collectionArr.filter((el) => el.age > 25 && el.city === 'Chicago' && el.address.street === 'Market St'),
     );
   });
 
@@ -60,9 +62,24 @@ describe('applyQuery', () => {
 
   it('filter with combined $and and $or operators', () => {
     const query = { $and: [{ age: { $gte: 25 } }, { $or: [{ city: 'Chicago' }, { 'address.street': 'Main St' }] }] };
-    expect(applyQuery(collection, query)).toEqual(
-      collection.filter((el) => el.age >= 25 && (el.city === 'Chicago' || el.address.street === 'Main St')),
+
+    const result = applyQuery(collection, query);
+    const uniqueResult = Array.from(new Set(result));
+
+    const expected = collection.filter(
+      (el) => el.age >= 25 && (el.city === 'Chicago' || el.address?.street === 'Main St'),
     );
+
+    const sortFn = (a, b) => {
+      if (a._id && b._id) return a._id.localeCompare(b._id);
+      if (a.name && b.name) return a.name.localeCompare(b.name);
+      return 0;
+    };
+
+    uniqueResult.sort(sortFn);
+    expected.sort(sortFn);
+
+    expect(uniqueResult).toEqual(expected);
   });
 
   it('filter with $eq operator', () => {

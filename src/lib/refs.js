@@ -10,10 +10,11 @@ const resolveRefs = (items) => {
       if (getType(value) === 'object' && value._ref) {
         const { collection, id } = value._ref;
         const collectionRef = data[collection];
+
         delete parent[key];
 
         if (collectionRef) {
-          const refItem = collectionRef.find((el) => el._id === id);
+          const refItem = collectionRef.get(id);
           if (refItem) {
             const { _ref, ...rest } = resolveRefs(refItem);
             objPathSet(clone, path, rest);

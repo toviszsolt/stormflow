@@ -72,6 +72,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@types/jest": "^29.5.14",
+    "benchmark": "^2.1.4",
     "blocked-at": "^1.2.0",
     "esbuild": "^0.25.5",
     "express": "^5.1.0",

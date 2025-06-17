@@ -57,7 +57,8 @@ const readDataFromFiles = () => {
 
       try {
         const content = fs.readFileSync(filePath, 'utf8');
-        data[collectionName] = JSON.parse(content);
+        const array = JSON.parse(content);
+        data[collectionName] = new Map(array.map((el) => [el._id, el]));
       } catch (error) {
         console.error(`Error reading data from ${file}:`, error);
       }
@@ -73,7 +74,7 @@ const backupDataFiles = () => {
     const filename = `${collectionName}.json-backup.gz`;
     const tmpFile = path.join(config.dataDirectory, `${filename}.tmp`);
     const backupFile = path.join(config.dataDirectory, filename);
-    const dataToSave = JSON.stringify(data[collectionName]);
+    const dataToSave = JSON.stringify(Array.from(data[collectionName].values()));
 
     try {
       zlib.gzip(dataToSave, (err, compressedData) => {
@@ -117,7 +118,7 @@ const writeThrottled = async (collectionName) => {
   const filename = `${collectionName}.json`;
   const tmpFile = path.join(config.dataDirectory, `${filename}.tmp`);
   const targetFile = path.join(config.dataDirectory, filename);
-  const dataToSave = JSON.stringify(data[collectionName]);
+  const dataToSave = JSON.stringify(Array.from(data[collectionName].values()));
 
   if (config.verbose) console.log(logPrefix, `Writing data to temp file: ${tmpFile}`);
 

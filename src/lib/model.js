@@ -27,7 +27,7 @@ const model = (collectionName = '', schema = {}) => {
     throw new Error(msg);
   }
 
-  if (!data[collectionName]) data[collectionName] = [];
+  if (!data[collectionName]) data[collectionName] = new Map();
 
   const findItems = async (query, withRefs = false, withMiddlewares = false) => {
     if (getType(query) !== 'object') {
@@ -54,45 +54,62 @@ const model = (collectionName = '', schema = {}) => {
 
     await executeMiddleware('pre', collectionName, 'create', items);
 
-    const results = items
-      .map((el) => {
-        const newItem = schemaHasProps ? applySchema(el, schema) : el;
+    const processedItems = items.map((el) => (schemaHasProps ? applySchema(el, schema) : el));
 
-        objTraverse(schema, ({ key, value }) => {
-          if (value.unique) {
-            const val = objPathResolve(newItem, key);
-            if (val === undefined || val === null) return;
-            const duplicated = applyQuery(data[collectionName], { [key]: val });
-            if (duplicated.length > 0) {
-              const msg = `"${key}" field must be unique.`;
-              throw new Error(msg);
-            }
+    objTraverse(schema, ({ key, value }) => {
+      if (value.required) {
+        for (const item of processedItems) {
+          const val = objPathResolve(item, key) || objPathResolve(item, key);
+          if (val === undefined || val === null) {
+            throw new Error(`"${key}" field is required.`);
           }
-
-          if (value.required) {
-            const val = objPathResolve(newItem, key) || objPathResolve(el, key);
-            if (val === undefined || val === null) {
-              throw new Error(`"${key}" field is required.`);
-            }
-          }
-        });
-
-        if (Object.keys(newItem).length > 0) {
-          const timestamp = timeNow();
-          newItem._id = uniqueId();
-          newItem._version = 1;
-          if (config.defaultFields) {
-            newItem._created = timestamp;
-            newItem._updated = timestamp;
-          }
-          return newItem;
         }
-      })
-      .filter((el) => el !== undefined);
+      }
+    });
+
+    const uniqueKeys = [];
+    objTraverse(schema, ({ key, value }) => {
+      if (value.unique) uniqueKeys.push(key);
+    });
+
+    for (const key of uniqueKeys) {
+      const newValues = processedItems
+        .map((item) => objPathResolve(item, key))
+        .filter((v) => v !== undefined && v !== null);
+
+      for (const val of newValues) {
+        const duplicated = applyQuery(data[collectionName], { [key]: val });
+        if (duplicated.length > 0) {
+          throw new Error(`"${key}" field must be unique.`);
+        }
+      }
+
+      const valueSet = new Set();
+      for (const val of newValues) {
+        if (valueSet.has(val)) {
+          throw new Error(`"${key}" field must be unique among new items.`);
+        }
+        valueSet.add(val);
+      }
+    }
+
+    const results = processedItems
+      .filter((el) => Object.keys(el).length > 0)
+      .map((el) => {
+        const timestamp = timeNow();
+        el._id = uniqueId();
+        el._version = 1;
+        if (config.defaultFields) {
+          el._created = timestamp;
+          el._updated = timestamp;
+        }
+        return el;
+      });
 
     if (results.length > 0) {
-      const clone = objClone(results);
-      data[collectionName].push(...clone);
+      for (const el of objClone(results)) {
+        data[collectionName].set(el._id, el);
+      }
       saveDataToFile(collectionName);
     }
 
@@ -105,8 +122,7 @@ const model = (collectionName = '', schema = {}) => {
     items = getType(items) === 'array' ? items : [items];
 
     if (getType(updates) !== 'object') {
-      const msg = 'Invalid object type of updates.';
-      throw new Error(msg);
+      throw new Error('Invalid object type of updates.');
     }
 
     let changedItems = 0;
@@ -115,27 +131,55 @@ const model = (collectionName = '', schema = {}) => {
 
     await executeMiddleware('pre', collectionName, operation, items);
 
-    const results = items.map((el) => {
-      const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
+    const applyUpdates = schemaHasProps ? applySchema(updates, schema) : updates;
 
-      objTraverse(schema, ({ key, value }) => {
-        if (value.unique) {
+    objTraverse(schema, ({ key, value }) => {
+      if (value.unique) {
+        const newValues = [];
+
+        for (const el of items) {
           const val = objPathResolve(applyUpdates, key);
-          if (val === undefined || val === null) return;
+          if (val === undefined || val === null) continue;
+
           const duplicated = applyQuery(data[collectionName], { [key]: val, _id: { $ne: el._id } });
           if (duplicated.length > 0) {
             throw new Error(`"${key}" field must be unique.`);
           }
+
+          newValues.push(val);
         }
 
-        if (value.required) {
-          const val = objPathResolve(applyUpdates, key) || objPathResolve(el, key);
+        const seen = new Set();
+        for (const val of newValues) {
+          if (seen.has(val)) {
+            throw new Error(`"${key}" field must be unique.`);
+          }
+          seen.add(val);
+        }
+      }
+
+      if (value.required) {
+        for (const el of items) {
+          let val;
+          if (replace) {
+            val = objPathResolve(applyUpdates, key);
+          } else {
+            val = objPathResolve(applyUpdates, key);
+            if (val === undefined) val = objPathResolve(el, key);
+          }
+
+          if (getType(applyUpdates.$unset) === 'object' && applyUpdates.$unset[key]) {
+            throw new Error(`"${key}" field is required and cannot be unset.`);
+          }
+
           if (val === undefined || val === null) {
             throw new Error(`"${key}" field is required.`);
           }
         }
-      });
+      }
+    });
 
+    const results = items.map((el) => {
       let changedFields = 0;
 
       if (replace) {
@@ -155,8 +199,7 @@ const model = (collectionName = '', schema = {}) => {
 
       if (getType(updates.$unset) === 'object') {
         if (replace) {
-          const msg = 'Cannot unset fields in replace operation.';
-          throw new Error(msg);
+          throw new Error('Cannot unset fields in replace operation.');
         }
 
         for (const unsetPath in updates.$unset) {
@@ -182,12 +225,10 @@ const model = (collectionName = '', schema = {}) => {
     });
 
     if (changedItems > 0) {
-      const mapIds = new Map(data[collectionName].map((el, i) => [el._id, i]));
-
       results.forEach((el) => {
-        const index = mapIds.get(el._id);
-        if (index === undefined) return;
-        data[collectionName][index] = objClone(el);
+        if (data[collectionName].has(el._id)) {
+          data[collectionName].set(el._id, objClone(el));
+        }
       });
 
       saveDataToFile(collectionName);
@@ -202,8 +243,10 @@ const model = (collectionName = '', schema = {}) => {
     if (items.length > 0) {
       await executeMiddleware('pre', collectionName, 'delete', items);
 
-      const toDeleteIds = new Set(items.map((el) => el._id));
-      data[collectionName] = data[collectionName].filter((el) => !toDeleteIds.has(el._id));
+      for (const el of items) {
+        data[collectionName].delete(el._id);
+      }
+
       saveDataToFile(collectionName);
 
       await executeMiddleware('post', collectionName, 'delete', items);

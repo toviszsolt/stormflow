@@ -48,15 +48,13 @@ describe('model', () => {
   });
 
   it('use an existing collection or create a new one', async () => {
-    storageData._tests = [{ test: true }];
+    storageData._tests = new Map([{ _id: '1', test: true }].map((el) => [el._id, el]));
     model('_tests');
-    expect(storageData._tests).toEqual([{ test: true }]);
-
+    expect(Array.from(storageData._tests.values())).toEqual([{ _id: '1', test: true }]);
     delete storageData._tests;
     expect(storageData._tests).toBeUndefined();
-
     model('_tests');
-    expect(storageData._tests).toEqual([]);
+    expect(storageData._tests).toEqual(new Map());
   });
 });
 
@@ -168,9 +166,11 @@ describe('model.updateOne', () => {
   });
 
   it('update a document without version', async () => {
-    delete storageData['tests'][0]._version;
+    const firstEntry = storageData['tests'].values().next().value;
+    delete firstEntry._version;
     const data = { age: 21 };
     const updated = await testModel.updateOne({ name: 'John' }, data);
+
     expect(updated._version).toBe(2);
   });
 
