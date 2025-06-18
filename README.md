@@ -35,12 +35,12 @@ yarn add stormflow
 ### Initialization
 
 ```js
-const db = require('stormflow');
+import db from 'stormflow';
 
 await db.start({
-  strict: false,
-  defaultFields: true,
-  verbose: false,
+  strict: false, // Enforce strict schema validation
+  defaultFields: true, // Auto add _created/_updated timestamps
+  verbose: false, // Verbose logging
 });
 ```
 
@@ -153,8 +153,8 @@ options.
 Example usage:
 
 ```js
-const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
-const storage = fileStorageAdapter({
+import fileStorageAdapter from 'stormflow/adapters/fileStorageAdapter';
+const adapter = fileStorageAdapter({
   dataFolder: './data', // default: './data'
   throttle: 100, // ms, default: 100
   verbose: false, // logging
@@ -166,7 +166,7 @@ const storage = fileStorageAdapter({
 For automatic backups, use the file backup adapter:
 
 ```js
-const fileBackupAdapter = require('./src/storage/fileBackupAdapter');
+import fileBackupAdapter from 'stormflow/adapters/fileBackupAdapter';
 const backup = fileBackupAdapter({
   backupFolder: './data/backup', // default
   backupInterval: 60, // minutes
@@ -180,9 +180,9 @@ const backup = fileBackupAdapter({
 ### Example: Using file-based storage and backup adapter
 
 ```js
-const db = require('stormflow');
-const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
-const fileBackupAdapter = require('./src/storage/fileBackupAdapter');
+import db from 'stormflow';
+import fileStorageAdapter from 'stormflow/adapters/fileStorageAdapter';
+import fileBackupAdapter from 'stormflow/adapters/fileBackupAdapter';
 
 const storage = fileStorageAdapter({
   dataFolder: './data',

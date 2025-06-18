@@ -51,6 +51,16 @@
     ".": {
       "import": "./dist/stormflow.js",
       "require": "./dist/stormflow.cjs"
+    },
+    "./adapters/fileStorageAdapter": {
+      "import": "./dist/adapters/fileStorageAdapter.js",
+      "require": "./dist/adapters/fileStorageAdapter.cjs",
+      "types": "./dist/adapters/fileStorageAdapter.d.ts"
+    },
+    "./adapters/fileBackupAdapter": {
+      "import": "./dist/adapters/fileBackupAdapter.js",
+      "require": "./dist/adapters/fileBackupAdapter.cjs",
+      "types": "./dist/adapters/fileBackupAdapter.d.ts"
     }
   },
   "files": [
