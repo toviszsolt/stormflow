@@ -39,7 +39,7 @@ const dumpCollections = () => {
 };
 
 const handleChanges = async (type, collectionName, changes) => {
-  if (!adapters.storage) return;
+  if (!adapters.storage || !data[collectionName]) return;
   const collectionData = Array.from(data[collectionName].values()).map(objClone);
   Promise.resolve()
     .then(() => adapters.storage[type]({ collectionName, collectionData, changes }))
