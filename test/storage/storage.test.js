@@ -1,6 +1,6 @@
 import fsp from 'fs/promises';
 import path from 'path';
-import { initAdapters, storageController } from '../../src/storage/storage.js';
+import { initAdapters, storageController } from '../../src/storage/storageController.js';
 
 const testRoot = './test-data';
 const storageDir = path.join(testRoot, 'storage');

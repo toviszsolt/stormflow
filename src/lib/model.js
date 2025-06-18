@@ -1,4 +1,4 @@
-import { storageController } from '../storage/storage.js';
+import { storageController } from '../storage/storageController.js';
 import { uniqueId } from '../utils/hash.js';
 import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
 import { getType } from '../utils/type.js';

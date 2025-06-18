@@ -1,7 +1,7 @@
 import { config, defaultConfig, getConfig, setConfig } from './lib/config.js';
 import model from './lib/model.js';
 import { Schema } from './lib/schema.js';
-import { initAdapters } from './storage/storage.js';
+import { initAdapters } from './storage/storageController.js';
 
 import * as hashUtils from './utils/hash.js';
 import * as objectUtils from './utils/object.js';
