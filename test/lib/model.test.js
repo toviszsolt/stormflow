@@ -1,7 +1,7 @@
 import { defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
+import data from '../../src/lib/data.js';
 import model from '../../src/lib/model.js';
 import { Schema } from '../../src/lib/schema.js';
-import { data } from '../../src/storage/_storage.js';
 
 const resetConfig = () => {
   setConfig({ ...defaultConfig, diskWrite: false });
@@ -514,12 +514,84 @@ describe('model update unique field among updates', () => {
 
   it('should throw if unique field is duplicated among updated items', async () => {
     const items = await uniqueModel.find({});
-    // Mindkét itemet ugyanarra a code-ra próbáljuk frissíteni (ez unique ütközés, tehát hibát kell dobnia)
     await expect(uniqueModel.updateMany({}, { code: 'C' })).rejects.toThrow(/unique/);
-    // Most mindkettőt ugyanarra az értékre, ami már létezik
     await expect(uniqueModel.updateMany({}, { code: 'A' })).rejects.toThrow(/unique/);
-    // Most két különböző itemet, de az egyik update során duplikáció keletkezik
     const all = await uniqueModel.find({});
     await expect(uniqueModel.updateMany({ code: { $in: ['A', 'B'] } }, { code: 'B' })).rejects.toThrow(/unique/);
+  });
+});
+
+describe('model error and edge case coverage', () => {
+  it('should throw if collectionName is invalid', () => {
+    expect(() => model('invalidname', {})).toThrow(/plural/);
+    expect(() => model('InvalidName', {})).toThrow(/small caps/);
+    expect(() => model('__proto__', {})).toThrow();
+    expect(() => model('constructor', {})).toThrow();
+  });
+
+  it('should throw if trying to update non-existing collection', async () => {
+    const m = model('testmodels', {});
+    delete data['testmodels'];
+    await expect(m.updateOne({ _id: 'notfound' }, { name: 'X' })).rejects.toThrow(TypeError);
+  });
+
+  it('should throw if trying to delete from non-existing collection', async () => {
+    const m = model('test2models', {});
+    delete data['test2models'];
+    await expect(m.deleteOne({ _id: 'notfound' })).rejects.toThrow(TypeError);
+  });
+
+  it('should throw if insertOne called without item', async () => {
+    const m = model('test3models', {});
+    await expect(m.insertOne()).rejects.toThrow();
+  });
+
+  it('should return empty array if insertMany called with empty array', async () => {
+    const m = model('test4models', {});
+    await expect(m.insertMany([])).resolves.toEqual([]);
+  });
+
+  it('should throw if updateOne called without updates', async () => {
+    const m = model('test5models', {});
+    await expect(m.updateOne({ _id: 'id' })).rejects.toThrow();
+  });
+
+  it('should throw if deleteOne called without query', async () => {
+    const m = model('test6models', {});
+    await expect(m.deleteOne()).rejects.toThrow();
+  });
+
+  it('should throw if replaceOne called without item', async () => {
+    const m = model('test7models', {});
+    await expect(m.replaceOne({ _id: 'id' })).rejects.toThrow();
+  });
+});
+
+describe('model coverage tests', () => {
+  it('should allow update if required field is missing from updates but present in original', async () => {
+    const m = model('coveragetestmodels', Schema({ name: { type: 'string', required: true }, age: Number }));
+    const a = await m.insertOne({ name: 'A', age: 10 });
+    await expect(m.updateOne({ _id: a._id }, { age: 11 })).resolves.toBeDefined();
+  });
+
+  it('should not update if item is missing from collection', async () => {
+    const m = model('coveragetestmodels2s', Schema({ name: { type: 'string', required: true } }));
+    const a = await m.insertOne({ name: 'A' });
+    await m.deleteOne({ _id: a._id });
+    await expect(m.updateOne({ _id: a._id }, { name: 'B' })).rejects.toThrow();
+  });
+
+  it('should not update if item is missing from collection after delete', async () => {
+    const m = model('coveragetestmodels230s', Schema({ name: { type: 'string', required: true } }));
+    const a = await m.insertOne({ name: 'A' });
+    await m.deleteOne({ _id: a._id });
+    await expect(m.updateOne({ _id: a._id }, { name: 'B' })).rejects.toThrow();
+  });
+
+  it('should not replace if item is missing from collection after delete', async () => {
+    const m = model('coveragetestmodels230s2s', Schema({ name: { type: 'string', required: true } }));
+    const a = await m.insertOne({ name: 'A' });
+    await m.deleteOne({ _id: a._id });
+    await expect(m.replaceOne({ _id: a._id }, { name: 'B' })).rejects.toThrow();
   });
 });
