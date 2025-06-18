@@ -105,6 +105,29 @@ describe('objPathResolve', () => {
   });
 });
 
+describe('objPathResolve null/undefined obj param', () => {
+  it('should return undefined if obj is null or undefined and path is not empty', () => {
+    expect(objPathResolve(null, 'a.b')).toBeUndefined();
+    expect(objPathResolve(undefined, 'a.b')).toBeUndefined();
+  });
+});
+
+describe('objPathResolve edge cases', () => {
+  it('should return undefined if current is null or undefined during traversal', () => {
+    const obj = { a: null };
+    expect(objPathResolve(obj, 'a.b')).toBeUndefined();
+    const obj2 = { a: undefined };
+    expect(objPathResolve(obj2, 'a.b')).toBeUndefined();
+  });
+
+  it('should handle falsy but valid values (0, false, "")', () => {
+    const obj = { a: { b: 0, c: false, d: '' } };
+    expect(objPathResolve(obj, 'a.b')).toBe(0);
+    expect(objPathResolve(obj, 'a.c')).toBe(false);
+    expect(objPathResolve(obj, 'a.d')).toBe('');
+  });
+});
+
 describe('objPathSet', () => {
   it('set object property correctly', () => {
     const obj1 = {};
@@ -136,5 +159,15 @@ describe('objPathSet', () => {
     const obj = {};
     objPathSet(obj, 'a.b.c', 123);
     expect(obj).toEqual({ a: { b: { c: 123 } } });
+  });
+});
+
+describe('objPathSet edge cases', () => {
+  it('should not set __proto__ or constructor properties', () => {
+    const obj = {};
+    objPathSet(obj, '__proto__.polluted', 'yes');
+    expect(obj.polluted).toBeUndefined();
+    objPathSet(obj, 'constructor.polluted', 'yes');
+    expect(obj.polluted).toBeUndefined();
   });
 });

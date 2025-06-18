@@ -169,7 +169,7 @@ const model = (collectionName = '', schema = {}) => {
             if (val === undefined) val = objPathResolve(el, key);
           }
 
-          if (getType(applyUpdates.$unset) === 'object' && applyUpdates.$unset[key]) {
+          if (getType(updates.$unset) === 'object' && updates.$unset[key]) {
             throw new Error(`"${key}" field is required and cannot be unset.`);
           }
 

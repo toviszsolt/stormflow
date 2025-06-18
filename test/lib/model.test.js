@@ -454,3 +454,72 @@ describe('Model update unique field validation', () => {
     expect(updated.email).toBe('e@example.com');
   });
 });
+
+describe('model required/unique edge cases', () => {
+  const requiredUniqueSchema = Schema({
+    name: { type: 'string', required: true, unique: true },
+    age: { type: 'number', required: true },
+  });
+  const requiredUniqueModel = model('requireds', requiredUniqueSchema);
+
+  beforeEach(async () => {
+    await requiredUniqueModel.deleteMany({});
+  });
+
+  it('should throw if required field is missing on insert', async () => {
+    await expect(requiredUniqueModel.insertOne({ age: 10 })).rejects.toThrow(/name/);
+    await expect(requiredUniqueModel.insertOne({ name: 'A' })).rejects.toThrow(/age/);
+  });
+
+  it('should throw if unique field is duplicated among new items', async () => {
+    const items = [
+      { name: 'A', age: 10 },
+      { name: 'A', age: 20 },
+    ];
+    await expect(requiredUniqueModel.insertMany(items)).rejects.toThrow(/unique among new items/);
+  });
+
+  it('should throw if unique field is duplicated on update', async () => {
+    const a = await requiredUniqueModel.insertOne({ name: 'A', age: 10 });
+    const b = await requiredUniqueModel.insertOne({ name: 'B', age: 20 });
+    await expect(requiredUniqueModel.updateOne({ _id: b._id }, { name: 'A' })).rejects.toThrow(/unique/);
+  });
+
+  it('should throw if required field is unset on update', async () => {
+    const a = await requiredUniqueModel.insertOne({ name: 'A', age: 10 });
+    await expect(requiredUniqueModel.updateOne({ _id: a._id }, { $unset: { name: 1 } })).rejects.toThrow(/required/);
+  });
+
+  it('should throw if required field is missing on replace', async () => {
+    const a = await requiredUniqueModel.insertOne({ name: 'A', age: 10 });
+    await expect(requiredUniqueModel.replaceOne({ _id: a._id }, { age: 99 })).rejects.toThrow(/name/);
+    await expect(requiredUniqueModel.replaceOne({ _id: a._id }, { name: 'B' })).rejects.toThrow(/age/);
+  });
+});
+
+describe('model update unique field among updates', () => {
+  const uniqueSchema = Schema({
+    code: { type: 'string', unique: true },
+    value: { type: 'number' },
+  });
+  const uniqueModel = model('uniques', uniqueSchema);
+
+  beforeEach(async () => {
+    await uniqueModel.deleteMany({});
+    await uniqueModel.insertMany([
+      { code: 'A', value: 1 },
+      { code: 'B', value: 2 },
+    ]);
+  });
+
+  it('should throw if unique field is duplicated among updated items', async () => {
+    const items = await uniqueModel.find({});
+    // Mindkét itemet ugyanarra a code-ra próbáljuk frissíteni (ez unique ütközés, tehát hibát kell dobnia)
+    await expect(uniqueModel.updateMany({}, { code: 'C' })).rejects.toThrow(/unique/);
+    // Most mindkettőt ugyanarra az értékre, ami már létezik
+    await expect(uniqueModel.updateMany({}, { code: 'A' })).rejects.toThrow(/unique/);
+    // Most két különböző itemet, de az egyik update során duplikáció keletkezik
+    const all = await uniqueModel.find({});
+    await expect(uniqueModel.updateMany({ code: { $in: ['A', 'B'] } }, { code: 'B' })).rejects.toThrow(/unique/);
+  });
+});
