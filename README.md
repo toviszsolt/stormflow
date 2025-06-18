@@ -209,7 +209,8 @@ db.start({}, storage, backup);
 
 ## API Reference
 
-- `start(options?: Options): void` — Start Stormflow with configuration.
+- `start(options?: Options, storageAdapter?: any, backupAdapter?: any): Promise<void>` — Start Stormflow with
+  configuration.
 - `setConfig(options: Options): void` — Update configuration at runtime.
 - `getConfig(): Options` — Get current configuration.
 - `Schema(definition: SchemaDefinition): SchemaDefinition` — Create a schema.
