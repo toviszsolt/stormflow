@@ -1,27 +1,27 @@
 /**
- * Opciók a fileStorageAdapter példányosításához.
+ * Options for instantiating the fileStorageAdapter.
  */
 export interface FileStorageAdapterOptions {
-  /** Adatmappa elérési útja (alapértelmezett: './data') */
+  /** Path to the data folder (default: './data') */
   dataFolder?: string;
-  /** Írási throttling idő (ms, alapértelmezett: 100) */
+  /** Write throttling time in ms (default: 100) */
   throttle?: number;
-  /** Naplózás bekapcsolása */
+  /** Enable verbose logging */
   verbose?: boolean;
 }
 
 /**
- * File alapú storage adapter factory.
- * @param options Beállítások
+ * File-based storage adapter factory.
+ * @param options Settings
  */
 declare function fileStorageAdapter(options?: FileStorageAdapterOptions): {
-  /** Inicializálás, visszaadja a kollekciókat */
+  /** Initialize and restore collections */
   init: () => Promise<any>;
-  /** Új dokumentum beszúrása */
+  /** Insert new documents */
   insert: (params: { collectionName: string; collectionData: any[] }) => Promise<void>;
-  /** Dokumentum frissítése */
+  /** Update documents */
   update: (params: { collectionName: string; collectionData: any[] }) => Promise<void>;
-  /** Dokumentum törlése */
+  /** Delete documents */
   delete: (params: { collectionName: string; collectionData: any[] }) => Promise<void>;
 };
 

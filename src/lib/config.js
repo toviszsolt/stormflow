@@ -5,13 +5,8 @@ import { getType } from '../utils/type.js';
 /**
  * @typedef {Object} Config
  * @property {boolean} [strict=true] Strict validation when applying a schema to data
- * @property {string} [dataDirectory="./data"] - The directory where data is stored.
- * @property {boolean} [diskWrite=true] - Indicates whether disk writing is enabled.
- * @property {number} [diskWriteThrottle=100] - Throttling time for disk writes in milliseconds.
- * @property {boolean} [backupFiles=true] - Indicates whether file backups are enabled.
- * @property {number} [backupInterval=10] - Interval for file backups in minutes.
- * @property {boolean} [defaultFields=true] - Indicates whether default fields are used.
- * @property {boolean} [verbose=false] - Indicates whether verbose mode is enabled.
+ * @property {boolean} [defaultFields=true] Indicates whether default fields are used.
+ * @property {boolean} [verbose=false] Indicates whether verbose mode is enabled.
  */
 const config = {};
 
@@ -20,11 +15,6 @@ const config = {};
  */
 const defaultConfig = {
   strict: true,
-  dataDirectory: path.join(process.cwd(), './data'),
-  diskWrite: true,
-  diskWriteThrottle: 100,
-  backupFiles: true,
-  backupInterval: 10,
   defaultFields: true,
   verbose: false,
 };
@@ -42,7 +32,6 @@ const getConfig = () => objClone(config);
  * @returns {void}
  */
 const setConfig = (options) => {
-  const { diskWriteThrottle, backupInterval } = options;
   const allowedKeys = Object.keys(defaultConfig);
 
   if (getType(options) !== 'object') {
@@ -65,16 +54,6 @@ const setConfig = (options) => {
       throw new Error(msg);
     }
   });
-
-  if (diskWriteThrottle != undefined && (diskWriteThrottle < 50 || diskWriteThrottle > 3000)) {
-    const msg = 'Invalid value of "diskWriteThrottle". It should be between 50 and 3000 in milliseconds.';
-    throw new Error(msg);
-  }
-
-  if (backupInterval != undefined && (backupInterval < 1 || backupInterval > 24)) {
-    const msg = 'Invalid value of "backupInterval". It should be between 1 and 24 in minutes.';
-    throw new Error(msg);
-  }
 
   Object.assign(config, defaultConfig, options);
 };

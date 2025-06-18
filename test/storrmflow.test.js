@@ -1,7 +1,7 @@
 import db from '../src/stormflow.js';
 
 beforeAll(async () => {
-  await db.start({ diskWrite: false });
+  await db.start();
 });
 
 beforeEach(() => {

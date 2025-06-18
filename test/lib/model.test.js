@@ -4,7 +4,7 @@ import model from '../../src/lib/model.js';
 import { Schema } from '../../src/lib/schema.js';
 
 const resetConfig = () => {
-  setConfig({ ...defaultConfig, diskWrite: false });
+  setConfig({ ...defaultConfig });
 };
 
 resetConfig();
@@ -368,14 +368,6 @@ describe('model.post', () => {
 });
 
 describe('additional tests for model', () => {
-  it('resetConfig sets config to defaultConfig with diskWrite false', () => {
-    setConfig({ diskWrite: true, defaultFields: false });
-    resetConfig();
-    const currentConfig = getConfig() || {};
-    expect(currentConfig.diskWrite).toBe(false);
-    expect(currentConfig.defaultFields).toBe(defaultConfig.defaultFields);
-  });
-
   it('insertOne accepts document with missing fields when strict mode is disabled', async () => {
     resetConfig();
     setConfig({ strict: false });

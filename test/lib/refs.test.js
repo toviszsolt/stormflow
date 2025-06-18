@@ -1,9 +1,6 @@
-import { setConfig } from '../../src/lib/config.js';
 import model from '../../src/lib/model.js';
 import { resolveRefs } from '../../src/lib/refs.js';
 import { Schema } from '../../src/lib/schema.js';
-
-setConfig({ diskWrite: false });
 
 const schemaCategory = Schema({ name: String });
 const schemaColor = Schema({ name: String, category: { $ref: 'categories' } });

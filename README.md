@@ -37,14 +37,10 @@ yarn add stormflow
 ```js
 const db = require('stormflow');
 
-db.start({
-  dataDirectory: './data', // Default is './data'
-  diskWrite: true, // Enable/disable disk writes
-  diskWriteThrottle: 100, // Throttle disk writes (ms)
-  backupFiles: true, // Enable backup files
-  defaultFields: true, // Auto add _created/_updated timestamps
-  verbose: false, // Verbose logging
-  strict: false, // Enforce strict schema validation
+await db.start({
+  strict: false,
+  defaultFields: true,
+  verbose: false,
 });
 ```
 
@@ -158,7 +154,7 @@ Example usage:
 
 ```js
 const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
-const adapter = fileStorageAdapter({
+const storage = fileStorageAdapter({
   dataFolder: './data', // default: './data'
   throttle: 100, // ms, default: 100
   verbose: false, // logging
@@ -188,14 +184,12 @@ const db = require('stormflow');
 const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
 const fileBackupAdapter = require('./src/storage/fileBackupAdapter');
 
-// Initialize storage adapter
 const storage = fileStorageAdapter({
   dataFolder: './data',
   throttle: 100,
   verbose: false,
 });
 
-// Initialize backup adapter (optional)
 const backup = fileBackupAdapter({
   backupFolder: './data/backup',
   backupInterval: 60,
@@ -203,8 +197,7 @@ const backup = fileBackupAdapter({
   verbose: false,
 });
 
-// Start Stormflow with both adapters
-db.start({}, storage, backup);
+await db.start({}, storage, backup);
 ```
 
 ## API Reference

@@ -2,16 +2,6 @@
  * Configuration options for initializing StormFlow.
  */
 export interface Options {
-  /** Directory where data files are stored */
-  dataDirectory?: string;
-  /** Enable writing data to disk */
-  diskWrite?: boolean;
-  /** Throttle interval for disk writes (milliseconds) */
-  diskWriteThrottle?: number;
-  /** Enable backup file creation */
-  backupFiles?: boolean;
-  /** Interval between backups (minutes) */
-  backupInterval?: number;
   /** Automatically add default metadata fields (_created, _updated) */
   defaultFields?: boolean;
   /** Enable verbose logging */
@@ -61,7 +51,7 @@ export interface StormFlowModel {
   pre(method: 'create' | 'read' | 'update' | 'replace' | 'delete', fn: MiddlewareFunction): void;
   /**
    * Register a middleware function to run after the specified action.
-   * @param method One of 'create', 'read', 'update', 'replace', 'delete'
+   * @param method One of 'create' | 'read' | 'update' | 'replace' | 'delete'
    * @param fn Middleware function to execute
    */
   post(method: 'create' | 'read' | 'update' | 'replace' | 'delete', fn: MiddlewareFunction): void;
@@ -122,7 +112,7 @@ export interface StormFlowUtils {
   /**
    * Format a UNIX timestamp according to a pattern.
    * @param unix UNIX timestamp (seconds)
-   * @param format Format string, supports tokens like %Y, %M, %D, etc.
+   * @param format Format string, supports tokens like YYYY, MM, DD, etc.
    */
   timeToDateStr(unix: number, format?: string): string;
 }

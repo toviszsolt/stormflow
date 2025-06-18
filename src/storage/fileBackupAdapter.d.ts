@@ -1,25 +1,26 @@
 /**
- * Opciók a fileBackupAdapter példányosításához.
+ * Options for instantiating the fileBackupAdapter.
  */
 export interface FileBackupAdapterOptions {
-  /** Backup mappa elérési útja (alapértelmezett: './data/backup') */
+  /** Path to the backup folder (default: './data/backup') */
   backupFolder?: string;
-  /** Backup időköz (perc, alapértelmezett: 60) */
+  /** Backup interval in minutes (default: 60) */
   backupInterval?: number;
-  /** Megtartandó backupok száma (alapértelmezett: 5) */
+  /** Number of backups to keep (default: 5) */
   maxBackups?: number;
-  /** Naplózás bekapcsolása */
+  /** Enable verbose logging */
   verbose?: boolean;
 }
 
 /**
- * File alapú backup adapter factory.
- * @param options Beállítások
+ * File-based backup adapter factory.
+ * @param options Configuration options
  */
 declare function fileBackupAdapter(options?: FileBackupAdapterOptions): {
-  /** Inicializálás, backup időzítő beállítása */
-  init?: () => Promise<{ backupInterval?: number }>;
-  /** Backup készítése */
+  /** Initialize backup timer and folder */
+  init: () => Promise<{ backupInterval?: number }>;
+
+  /** Create a backup from the provided data */
   backup: (data: Record<string, any[]>) => Promise<void>;
 };
 
