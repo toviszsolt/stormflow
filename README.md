@@ -5,32 +5,24 @@
 [![codecov](https://codecov.io/gh/toviszsolt/stormflow/branch/main/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow)
 [![Sponsor](https://img.shields.io/static/v1?label=sponsor&message=❤&color=ff69b4)](https://github.com/sponsors/toviszsolt)
 
-# StormFlow
+# Stormflow
 
-A Lightweight Data Modeling and Storage Library for Node.js
+A lightweight, flexible data modeling and storage library for Node.js applications. Stormflow enables you to define data
+schemas, manage collections, and perform CRUD operations easily, without the overhead of a full database system.
 
-## Introduction
+## Key Features
 
-StormFlow is a lightweight, flexible data modeling and storage library designed for Node.js applications. It enables you
-to define data schemas, manage collections, and perform CRUD operations with ease, without the complexity of a full
-database system.
-
-Ideal for small to medium-sized projects, StormFlow provides persistent file-based storage with schema enforcement,
-middleware support, and powerful querying capabilities.
-
-## Features
-
-- **Schema Definition:** Create strict or flexible data schemas to ensure data consistency.
-- **Data Collections:** Manage collections with full CRUD support.
-- **Middleware:** Add pre- and post-operation middleware hooks for custom logic.
-- **Query Engine:** Perform advanced queries with comparison and logical operators.
-- **File Persistence:** Automatically persist data to disk with configurable backups.
-- **References:** Handle references between documents seamlessly.
-- **Universal Compatibility:** Supports CommonJS and ES modules, plus TypeScript typings.
+- **Schema Definition:** Strict or flexible schemas for data consistency.
+- **Data Collections:** Full CRUD support for collections.
+- **Middleware:** Pre- and post-operation hooks for custom logic.
+- **Query Engine:** Advanced queries with comparison and logical operators.
+- **File Persistence:** Data is persisted to disk with optional backups.
+- **References:** Seamless handling of document references.
+- **Universal Compatibility:** Works with CommonJS, ES modules, and TypeScript.
 
 ## Installation
 
-Install StormFlow via npm or yarn:
+Install via npm or yarn:
 
 ```bash
 npm install stormflow
@@ -42,103 +34,84 @@ yarn add stormflow
 
 ### Initialization
 
-Initialize StormFlow with optional configuration:
-
 ```js
 const db = require('stormflow');
 
 db.start({
-  dataDirectory: './data_blog', // Default is './data'
-  diskWrite: true, // Enable or disable disk writes
-  diskWriteThrottle: 100, // Throttle disk writes in ms
+  dataDirectory: './data', // Default is './data'
+  diskWrite: true, // Enable/disable disk writes
+  diskWriteThrottle: 100, // Throttle disk writes (ms)
   backupFiles: true, // Enable backup files
-  defaultFields: true, // Auto add _created and _updated timestamps
-  verbose: false, // Enable verbose logging
+  defaultFields: true, // Auto add _created/_updated timestamps
+  verbose: false, // Verbose logging
   strict: false, // Enforce strict schema validation
 });
 ```
 
 ### Defining Schemas and Models
 
-Define schemas using the `Schema` function to enforce structure:
-
 ```js
 const userSchema = db.Schema({
   name: { type: 'string', required: true },
   email: { type: 'string', required: true, unique: true },
   age: { type: 'number', default: 0 },
-  friends: [{ type: 'string', $ref: 'user' }], // Reference to other users
+  friends: [{ type: 'string', $ref: 'user' }],
 });
-```
 
-Create a model tied to a collection and schema:
-
-```js
 const User = db.model('users', userSchema);
 ```
 
 ### CRUD Operations
 
-You can perform standard CRUD operations asynchronously:
-
 ```js
-// Create a user
 const newUser = await User.insertOne({ name: 'John Doe', email: 'john@example.com', age: 30 });
-
-// Find users older than 18
 const adults = await User.find({ age: { $gte: 18 } });
-
-// Update a user by ID
 const updatedUser = await User.findByIdAndUpdate(newUser._id, { age: 31 });
-
-// Delete a user by ID
 await User.findByIdAndDelete(newUser._id);
 ```
 
 ### Model Methods
 
-The object returned by `model(collectionName, schema)` supports the following asynchronous methods:
+| Method                                | Description                                    |
+| ------------------------------------- | ---------------------------------------------- |
+| `insertOne(item)`                     | Insert a single document.                      |
+| `insertMany(items)`                   | Insert multiple documents.                     |
+| `find(query)`                         | Find all documents matching the query.         |
+| `findById(id)`                        | Find a document by its unique ID.              |
+| `findOne(query)`                      | Find the first document matching the query.    |
+| `findByIdAndReplace(id, replacement)` | Replace a document by ID.                      |
+| `findByIdAndUpdate(id, updates)`      | Update fields of a document by ID.             |
+| `findByIdAndDelete(id)`               | Delete a document by its ID.                   |
+| `updateOne(query, updates)`           | Update one document matching the query.        |
+| `updateMany(query, updates)`          | Update multiple documents matching the query.  |
+| `replaceOne(query, replacement)`      | Replace one document matching the query.       |
+| `replaceMany(query, replacement)`     | Replace multiple documents matching the query. |
+| `deleteOne(query)`                    | Delete one document matching the query.        |
+| `deleteMany(query)`                   | Delete multiple documents matching the query.  |
+| `count(query)`                        | Count documents matching the query.            |
+| `exists(query)`                       | Check if at least one document matches.        |
+| `pre(method, fn)`                     | Register middleware before the given action.   |
+| `post(method, fn)`                    | Register middleware after the given action.    |
 
-| Method                                | Parameters                                                                                | Description                                                      |
-| ------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `insertOne(item)`                     | `item: any`                                                                               | Insert a single document into the collection.                    |
-| `insertMany(items)`                   | `items: any[]`                                                                            | Insert multiple documents at once.                               |
-| `find(query)`                         | `query: object`                                                                           | Find all documents matching the query, with references resolved. |
-| `findById(id)`                        | `id: string`                                                                              | Find a document by its unique ID.                                |
-| `findOne(query)`                      | `query: object`                                                                           | Find the first document matching the query.                      |
-| `findByIdAndReplace(id, replacement)` | `id: string, replacement: any`                                                            | Replace a document by ID with a new one.                         |
-| `findByIdAndUpdate(id, updates)`      | `id: string, updates: any`                                                                | Update fields of a document by ID.                               |
-| `findByIdAndDelete(id)`               | `id: string`                                                                              | Delete a document by its ID.                                     |
-| `updateOne(query, updates)`           | `query: object, updates: any`                                                             | Update one document matching the query.                          |
-| `updateMany(query, updates)`          | `query: object, updates: any`                                                             | Update multiple documents matching the query.                    |
-| `replaceOne(query, replacement)`      | `query: object, replacement: any`                                                         | Replace one document matching the query.                         |
-| `replaceMany(query, replacement)`     | `query: object, replacement: any`                                                         | Replace multiple documents matching the query.                   |
-| `deleteOne(query)`                    | `query: object`                                                                           | Delete one document matching the query.                          |
-| `deleteMany(query)`                   | `query: object`                                                                           | Delete multiple documents matching the query.                    |
-| `count(query)`                        | `query: object`                                                                           | Count documents matching the query.                              |
-| `exists(query)`                       | `query: object`                                                                           | Check if at least one document matches the query.                |
-| `pre(method, fn)`                     | `method: 'create' \| 'read' \| 'update' \| 'replace' \| 'delete', fn: MiddlewareFunction` | Register a middleware function before the given action.          |
-| `post(method, fn)`                    | `method: 'create' \| 'read' \| 'update' \| 'replace' \| 'delete', fn: MiddlewareFunction` | Register a middleware function after the given action.           |
+### Middleware
 
-### Middleware Support
-
-Register middleware to run before or after operations:
+Register middleware for operations:
 
 ```js
 User.pre('create', async (doc) => {
-  console.log('Before creating user:', doc);
+  // Before creating user
 });
 
 User.post('update', async (doc) => {
-  console.log('After updating user:', doc);
+  // After updating user
 });
 ```
 
-Supported middleware methods: `'create' | 'read' | 'update' | 'replace' | 'delete'`.
+Supported methods: `'create' | 'read' | 'update' | 'replace' | 'delete'`.
 
 ### Querying
 
-StormFlow supports rich queries with comparison and logical operators.
+Stormflow supports rich queries with comparison and logical operators.
 
 #### Comparison Operators
 
@@ -166,63 +139,90 @@ StormFlow supports rich queries with comparison and logical operators.
 ##### Example Query
 
 ```js
-// Find users either younger than 20 or older than 60
 const result = await User.find({
   $or: [{ age: { $lt: 20 } }, { age: { $gt: 60 } }],
 });
 ```
 
-### File-Based Storage
+### Storage Adapters
 
-Data is stored in the configured `dataDirectory` (default: `./data`), with automatic backups if enabled.
+Stormflow uses a pluggable storage adapter system. The default file-based storage is implemented via a storage adapter,
+but you can provide your own adapter for custom persistence.
 
-### Statistics
+#### File Storage Adapter
 
-Retrieve runtime statistics about disk and skipped writes:
+The file storage adapter persists collections in a specified directory. You can configure the location and behavior via
+options.
+
+Example usage:
 
 ```js
-const stats = await db.stats();
-console.log('Disk Writes:', stats.diskWrites);
-console.log('Skipped Writes:', stats.skippedWrites);
+const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
+const adapter = fileStorageAdapter({
+  dataFolder: './data', // default: './data'
+  throttle: 100, // ms, default: 100
+  verbose: false, // logging
+});
+```
+
+#### File Backup Adapter
+
+For automatic backups, use the file backup adapter:
+
+```js
+const fileBackupAdapter = require('./src/storage/fileBackupAdapter');
+const backup = fileBackupAdapter({
+  backupFolder: './data/backup', // default
+  backupInterval: 60, // minutes
+  maxBackups: 5, // how many to keep
+  verbose: false,
+});
+```
+
+> See the `src/storage/fileStorageAdapter.d.ts` and `fileBackupAdapter.d.ts` for full API details.
+
+### Example: Using file-based storage and backup adapter
+
+```js
+const db = require('stormflow');
+const fileStorageAdapter = require('./src/storage/fileStorageAdapter');
+const fileBackupAdapter = require('./src/storage/fileBackupAdapter');
+
+// Initialize storage adapter
+const storage = fileStorageAdapter({
+  dataFolder: './data',
+  throttle: 100,
+  verbose: false,
+});
+
+// Initialize backup adapter (optional)
+const backup = fileBackupAdapter({
+  backupFolder: './data/backup',
+  backupInterval: 60,
+  maxBackups: 5,
+  verbose: false,
+});
+
+// Start Stormflow with both adapters
+db.start({}, storage, backup);
 ```
 
 ## API Reference
 
-### `start(options?: Options): void`
-
-Starts StormFlow with optional configuration.
-
-### `setConfig(options: Options): void`
-
-Update runtime configuration.
-
-### `getConfig(): Options`
-
-Get current configuration.
-
-### `stats(): Promise<StormFlowStats>`
-
-Get operation statistics.
-
-### `Schema(definition: SchemaDefinition): SchemaDefinition`
-
-Create a schema definition.
-
-### `model(name: string, schema?: SchemaDefinition): StormFlowModel`
-
-Create or get a model bound to a collection.
+- `start(options?: Options): void` — Start Stormflow with configuration.
+- `setConfig(options: Options): void` — Update configuration at runtime.
+- `getConfig(): Options` — Get current configuration.
+- `Schema(definition: SchemaDefinition): SchemaDefinition` — Create a schema.
+- `model(name: string, schema?: SchemaDefinition): StormflowModel` — Create or get a model.
 
 ## Guidelines
 
-To learn about the guidelines, please read the [Code of Conduct](./CODE_OF_CONDUCT.md),
-[Contributing](./CONTRIBUTING.md) and [Security Policy](./SECURITY.md) documents.
+See [Code of Conduct](./CODE_OF_CONDUCT.md), [Contributing](./CONTRIBUTING.md), and [Security Policy](./SECURITY.md).
 
 ## License
 
-MIT License @ 2022 [Zsolt Tövis](https://github.com/toviszsolt)
+MIT License © 2022–2024 [Zsolt Tövis](https://github.com/toviszsolt)
 
-If you found this project interesting, please consider supporting my open source work by
-
-[sponsoring me on GitHub](https://github.com/sponsors/toviszsolt) /
-[sponsoring me on PayPal](https://www.paypal.com/paypalme/toviszsolt) /
+If you find this project useful, please consider [sponsoring me on GitHub](https://github.com/sponsors/toviszsolt),
+[PayPal](https://www.paypal.com/paypalme/toviszsolt), or
 [give the repo a star](https://github.com/toviszsolt/stormflow).
