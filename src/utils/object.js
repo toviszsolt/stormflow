@@ -52,24 +52,23 @@ const objTraverse = (obj, callback) => traverse(obj, '', callback);
  * @param {function} callback The callback function to call for each property
  * @returns {void}
  */
+// Optimized traverse for better ops/sec
 const traverse = (parent, parentPath, callback) => {
   if (typeof parent !== 'object' || parent === null) return;
 
   const keys = Object.keys(parent);
   const parentPathIsEmpty = !parentPath;
 
-  for (let i = 0; i < keys.length; i++) {
+  for (let i = 0, len = keys.length; i < len; i++) {
     const key = keys[i];
     const value = parent[key];
-    const path = parentPathIsEmpty ? key : `${parentPath}.${key}`;
+    const path = parentPathIsEmpty ? key : parentPath + '.' + key;
     const _parentPath = parentPathIsEmpty ? null : parentPath;
-    const isNode = typeof value === 'object' && value !== null;
+    const isNode = value && typeof value === 'object';
 
     callback({ key, value, parent, path, parentPath: _parentPath, isNode });
 
-    if (typeof value === 'object' && value !== null) {
-      traverse(value, path, callback);
-    }
+    if (isNode) traverse(value, path, callback);
   }
 };
 
