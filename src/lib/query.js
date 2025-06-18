@@ -1,11 +1,14 @@
 import { objPathResolve } from '../utils/object.js';
 import { getType } from '../utils/type.js';
 
+const getValue = (obj, key) => {
+  if (key.includes('.')) return objPathResolve(obj, key);
+  return obj[key];
+};
+
 const applyQuery = (collection, query) => {
   const dataSet = collection instanceof Map ? Array.from(collection.values()) : collection;
-
   if (getType(query) !== 'object') return dataSet;
-
   const queryKeys = Object.keys(query);
 
   if (queryKeys.length === 1 && query._id !== undefined) {
@@ -13,31 +16,38 @@ const applyQuery = (collection, query) => {
   }
 
   if (getType(query.$and) === 'array') {
-    return query.$and.reduce((acc, andQuery) => {
-      const results = applyQuery(acc, andQuery);
-      return acc.filter((el) => results.includes(el));
-    }, dataSet);
+    return dataSet.filter((el) => query.$and.every((andQuery) => applyQuery([el], andQuery).length));
   }
 
   if (getType(query.$or) === 'array') {
-    return query.$or.map((el) => applyQuery(dataSet, el)).flat();
+    const resultSet = new Set();
+    for (const orQuery of query.$or) {
+      for (const el of applyQuery(dataSet, orQuery)) {
+        resultSet.add(el);
+      }
+    }
+    return Array.from(resultSet);
   }
 
   if (getType(query.$not) === 'object') {
-    const exclude = applyQuery(dataSet, query.$not);
-    return dataSet.filter((el) => !exclude.includes(el));
+    const exclude = new Set(applyQuery(dataSet, query.$not));
+    return dataSet.filter((el) => !exclude.has(el));
   }
 
   if (getType(query.$nor) === 'array') {
-    const exclude = query.$nor.map((query) => applyQuery(dataSet, query));
-    return dataSet.filter((el) => exclude.every((result) => !result.includes(el)));
+    const exclude = new Set();
+    for (const norQuery of query.$nor) {
+      for (const el of applyQuery(dataSet, norQuery)) {
+        exclude.add(el);
+      }
+    }
+    return dataSet.filter((el) => !exclude.has(el));
   }
 
   return dataSet.filter((el) => {
     return queryKeys.every((key) => {
       const condition = query[key];
-      const value = objPathResolve(el, key);
-
+      const value = getValue(el, key);
       if (['object', 'array'].includes(getType(condition))) {
         if (condition.$eq !== undefined) return value === condition.$eq;
         if (condition.$ne !== undefined) return value !== condition.$ne;
