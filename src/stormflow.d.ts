@@ -100,16 +100,6 @@ export interface StormFlowModel {
 }
 
 /**
- * Statistics about write operations.
- */
-export interface StormFlowStats {
-  /** Count of actual disk writes per collection */
-  diskWrites: { [collection: string]: number };
-  /** Count of skipped writes per collection */
-  skippedWrites: { [collection: string]: number };
-}
-
-/**
  * Utility functions provided by StormFlow.
  */
 export interface StormFlowUtils {
@@ -156,12 +146,6 @@ export function setConfig(options: Options): void;
 export function getConfig(): Options;
 
 /**
- * Retrieve statistics about StormFlow operations.
- * @returns A promise resolving to the statistics object.
- */
-export function stats(): Promise<StormFlowStats>;
-
-/**
  * Create a schema definition to enforce on a model.
  * @param definition The schema definition object.
  * @returns The same schema object (for chaining).
@@ -184,7 +168,6 @@ declare const _default: {
   start: typeof start;
   setConfig: typeof setConfig;
   getConfig: typeof getConfig;
-  stats: typeof stats;
   Schema: typeof Schema;
   model: typeof model;
   utils: typeof utils;

@@ -64,22 +64,22 @@
     "test": "jest --coverage",
     "report": "start coverage/lcov-report/index.html",
     "build": "rollup -c",
-    "esbuild": "esbuild src/stormflow.js --bundle --platform=node --minify --target=node22 --outfile=stormflow-build.js"
+    "esbuild": "esbuild src/stormflow.js --bundle --platform=node --minify --target=node22 --outfile=stormflow-build.js --external:archiver"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
     "@rollup/plugin-commonjs": "^28.0.5",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
+    "archiver": "^7.0.1",
     "benchmark": "^2.1.4",
-    "blocked-at": "^1.2.0",
     "esbuild": "^0.25.5",
-    "express": "^5.1.0",
     "jest": "^30.0.0",
     "moment-timezone": "^0.6.0",
     "rollup": "^4.43.0",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-terser": "^7.0.2"
-  }
+  },
+  "dependencies": {}
 }

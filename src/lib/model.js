@@ -1,13 +1,14 @@
+import { storageController } from '../storage/storage.js';
 import { uniqueId } from '../utils/hash.js';
 import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
 import { getType } from '../utils/type.js';
 import { timeNow } from '../utils/unixtime.js';
 import { config } from './config.js';
+import data from './data.js';
 import { executeMiddleware, registerMiddleware } from './middleware.js';
 import { applyQuery } from './query.js';
 import { resolveRefs } from './refs.js';
 import { applySchema } from './schema.js';
-import { data, saveDataToFile } from './storage.js';
 
 const model = (collectionName = '', schema = {}) => {
   const schemaHasProps = Object.keys(schema).length > 0;
@@ -110,7 +111,7 @@ const model = (collectionName = '', schema = {}) => {
       for (const el of objClone(results)) {
         data[collectionName].set(el._id, el);
       }
-      saveDataToFile(collectionName);
+      storageController.onInsert(collectionName, results);
     }
 
     await executeMiddleware('post', collectionName, 'create', results);
@@ -231,7 +232,7 @@ const model = (collectionName = '', schema = {}) => {
         }
       });
 
-      saveDataToFile(collectionName);
+      storageController.onUpdate(collectionName, results);
     }
 
     await executeMiddleware('post', collectionName, operation, results);
@@ -247,7 +248,7 @@ const model = (collectionName = '', schema = {}) => {
         data[collectionName].delete(el._id);
       }
 
-      saveDataToFile(collectionName);
+      storageController.onDelete(collectionName, items);
 
       await executeMiddleware('post', collectionName, 'delete', items);
     }

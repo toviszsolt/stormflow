@@ -1,7 +1,7 @@
 import { defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
 import model from '../../src/lib/model.js';
 import { Schema } from '../../src/lib/schema.js';
-import { data } from '../../src/lib/storage.js';
+import { data } from '../../src/storage/_storage.js';
 
 const resetConfig = () => {
   setConfig({ ...defaultConfig, diskWrite: false });

@@ -1,7 +1,7 @@
 import { config, defaultConfig, getConfig, setConfig } from './lib/config.js';
 import model from './lib/model.js';
 import { Schema } from './lib/schema.js';
-import { diskStats, initFileStorage } from './lib/storage.js';
+import { initAdapters } from './storage/storage.js';
 
 import * as hashUtils from './utils/hash.js';
 import * as objectUtils from './utils/object.js';
@@ -18,16 +18,19 @@ const utils = {
 let init = false;
 
 /**
- * Initializes Stormflow with the given options.
- * @param {import('./lib/config.js').Config} options - The options to merge.
- * @throws {Error} If invalid options are provided.
- * @returns {void}
+ * Initializes the Stormflow system with the provided configuration and adapters.
+ *
+ * @async
+ * @param {Object} [options=defaultConfig] - Configuration options for Stormflow.
+ * @param {Object|null} [storageAdapter=null] - Custom storage adapter to use, or null for default.
+ * @param {Object|null} [backupAdapter=null] - Custom backup adapter to use, or null for default.
+ * @returns {Promise<void>} Resolves when initialization is complete.
  */
-const start = (options = defaultConfig) => {
+const start = async (options = defaultConfig, storageAdapter = null, backupAdapter = null) => {
   if (!init) {
     init = true;
     setConfig(options);
-    initFileStorage();
+    await initAdapters({ storageAdapter, backupAdapter });
   } else if (config.strict) {
     const msg = 'Stormflow is already initialized.';
     throw new Error(msg);
@@ -40,6 +43,5 @@ export default {
   setConfig,
   Schema,
   model,
-  stats: diskStats,
   utils,
 };

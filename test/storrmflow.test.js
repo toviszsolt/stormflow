@@ -1,18 +1,20 @@
 import db from '../src/stormflow.js';
 
-db.start({ diskWrite: false });
+beforeAll(async () => {
+  await db.start({ diskWrite: false });
+});
 
 beforeEach(() => {
   db.setConfig({ strict: true });
 });
 
 describe('stormflow', () => {
-  it('does not re-init and throw error', () => {
-    expect(() => db.start()).toThrow();
+  it('does not re-init and throw error', async () => {
+    await expect(db.start()).rejects.toThrow();
   });
 
-  it('does not re-init without throw error', () => {
+  it('does not re-init without throw error', async () => {
     db.setConfig({ strict: false });
-    expect(() => db.start()).not.toThrow();
+    await expect(db.start()).resolves.not.toThrow();
   });
 });

@@ -1,6 +1,6 @@
 import { objClone, objPathSet, objTraverse } from '../utils/object.js';
 import { getType } from '../utils/type.js';
-import { data } from './storage.js';
+import data from './data.js';
 
 const resolveRefs = (items) => {
   if (['object', 'array'].includes(getType(items))) {
