@@ -108,8 +108,8 @@ const model = (collectionName = '', schema = {}) => {
       });
 
     if (results.length > 0) {
-      for (const el of objClone(results)) {
-        data[collectionName].set(el._id, el);
+      for (const el of results) {
+        data[collectionName].set(el._id, objClone(el));
       }
       storageController.onInsert(collectionName, results);
     }
@@ -226,11 +226,11 @@ const model = (collectionName = '', schema = {}) => {
     });
 
     if (changedItems > 0) {
-      results.forEach((el) => {
+      for (const el of results) {
         if (data[collectionName].has(el._id)) {
           data[collectionName].set(el._id, objClone(el));
         }
-      });
+      }
 
       storageController.onUpdate(collectionName, results);
     }
