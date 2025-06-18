@@ -4,8 +4,7 @@
  * @returns {string} The type of the value. Possible values: 'null', 'array', 'date', or the JavaScript type (e.g., 'string', 'number', 'boolean', 'object', 'function').
  */
 const getType = (variable) => {
-  if (variable === undefined) return 'undefined';
-  if (variable === null) return 'null';
+  if (variable == null) return variable === null ? 'null' : 'undefined';
   if (Array.isArray(variable)) return 'array';
   if (variable instanceof Date) return 'date';
   return typeof variable;
