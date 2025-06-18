@@ -128,10 +128,12 @@ export interface StormFlowUtils {
 }
 
 /**
- * Initializes StormFlow with the given options.
+ * Initializes StormFlow with the given options and optional storage/backup adapters.
  * @param options The options to merge.
+ * @param storageAdapter Optional storage adapter instance.
+ * @param backupAdapter Optional backup adapter instance.
  */
-export function start(options?: Options): void;
+export function start(options?: Options, storageAdapter?: any, backupAdapter?: any): Promise<void>;
 
 /**
  * Update the runtime configuration.
