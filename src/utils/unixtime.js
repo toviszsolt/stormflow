@@ -19,55 +19,73 @@ const timeFromStr = (dateStr) => Math.floor(new Date(dateStr).getTime() / 1000);
 const timeToDateObj = (unixTimestamp) => new Date(unixTimestamp * 1000);
 
 /**
- * Converts a Unix time format to a date string.
- * @param {number} unixTimestamp The Unix timestamp to convert to a date string.
- * @param {string} [format='%Y-%M-%D %H:%I:%S'] The format of the date string to return.
- * Possible tokens: %offset, %mer, %MER, %mh, %MH, %y, %Y, %m, %M, %w, %W, %d, %D, %h, %H, %i, %I, %s, %S.
- * @returns {string} The date string representing the Unix time format.
+ * Converts a Unix timestamp to a date string.
+ * @param {number} unixTimestamp - The Unix timestamp to convert.
+ * @param {string} [format='YYYY-MM-DD HH:mm:ss'] - The format of the returned date string.
+ * Supported tokens: YYYY, YY, MMMM, MMM, MM, M, DD, D, dddd, ddd, dd, d, HH, H, hh, h, mm, m, ss, s, SSS, A, a, Z, ZZ.
+ * @returns {string} The date string representing the Unix timestamp.
  */
-const timeToDateStr = (unixTimestamp, format = '%Y-%M-%D %H:%I:%S') => {
-  const pad = (str) => String(str).padStart(2, '0');
+const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const monthNamesLong = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const dayNamesMin = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const dayNamesLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const timeToDateStr = (unixTimestamp, format = 'YYYY-MM-DD HH:mm:ss') => {
+  const pad = (str, len = 2) => String(str).padStart(len, '0');
   const date = new Date(unixTimestamp * 1000);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours();
-  const hours12 = hours > 12 ? hours - 12 : hours;
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  const firstDayOfYear = new Date(year, 0, 1);
-  const daysSinceFirstDay = Math.floor((date.getTime() - firstDayOfYear.getTime()) / (24 * 60 * 60 * 1000));
-  const weekNumber = Math.ceil(daysSinceFirstDay / 7);
-  const tokens = {
-    offset: `GMT${date.getTimezoneOffset() > 0 ? '-' : '+'}${String(Math.abs(date.getTimezoneOffset() / 60)).padStart(
-      2,
-      '0',
-    )}:${String(Math.abs(date.getTimezoneOffset() % 60)).padStart(2, '0')}`,
-    mer: hours < 12 ? 'a.m.' : 'p.m',
-    MER: hours < 12 ? 'A.M.' : 'P.M',
-    mh: hours12,
-    MH: pad(hours12),
-    y: String(year).slice(-2),
-    Y: year,
-    m: month,
-    M: pad(month),
-    w: weekNumber,
-    W: pad(weekNumber),
-    d: day,
-    D: pad(day),
-    h: hours,
-    H: pad(hours),
-    i: minutes,
-    I: pad(minutes),
-    s: seconds,
-    S: pad(seconds),
+
+  const offsetMinutes = date.getTimezoneOffset();
+  const offsetSign = offsetMinutes > 0 ? '-' : '+';
+  const absOffset = Math.abs(offsetMinutes);
+  const offsetHours = pad(Math.floor(absOffset / 60));
+  const offsetMins = pad(absOffset % 60);
+  const offsetZ = `${offsetSign}${offsetHours}:${offsetMins}`;
+  const offsetZZ = `${offsetSign}${offsetHours}${offsetMins}`;
+
+  const map = {
+    YYYY: date.getFullYear(),
+    YY: String(date.getFullYear()).slice(-2),
+    M: date.getMonth() + 1,
+    MM: pad(date.getMonth() + 1),
+    MMM: monthNamesShort[date.getMonth()],
+    MMMM: monthNamesLong[date.getMonth()],
+    D: date.getDate(),
+    DD: pad(date.getDate()),
+    d: date.getDay(),
+    dd: dayNamesMin[date.getDay()],
+    ddd: dayNamesShort[date.getDay()],
+    dddd: dayNamesLong[date.getDay()],
+    H: date.getHours(),
+    HH: pad(date.getHours()),
+    h: date.getHours() % 12 || 12,
+    hh: pad(date.getHours() % 12 || 12),
+    m: date.getMinutes(),
+    mm: pad(date.getMinutes()),
+    s: date.getSeconds(),
+    ss: pad(date.getSeconds()),
+    SSS: pad(date.getMilliseconds(), 3),
+    A: date.getHours() < 12 ? 'AM' : 'PM',
+    a: date.getHours() < 12 ? 'am' : 'pm',
   };
 
-  const formattedDate = Object.keys(tokens).reduce((result, token) => {
-    return result.replaceAll(`%${token}`, String(tokens[token]));
-  }, format);
-
-  return formattedDate;
+  return format
+    .replace(/ZZ/g, offsetZZ)
+    .replace(/Z/g, offsetZ)
+    .replace(/YYYY|YY|MMMM|MMM|MM|M|DD|D|dddd|ddd|dd|d|HH|H|hh|h|mm|m|ss|s|SSS|A|a/g, (match) => map[match] ?? match);
 };
 
 export { timeFromStr, timeNow, timeToDateObj, timeToDateStr };
