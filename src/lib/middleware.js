@@ -55,10 +55,7 @@ const executeOneMiddleware = async (type, collection, method, res) => {
 
 const executeMiddleware = async (type, collection, method, res) => {
   const results = getType(res) === 'array' ? res : [res];
-
-  for (const el of results) {
-    await executeOneMiddleware(type, collection, method, el);
-  }
+  await Promise.all(results.map((el) => executeOneMiddleware(type, collection, method, el)));
 };
 
 export { executeMiddleware, registerMiddleware, unregisterMiddleware };

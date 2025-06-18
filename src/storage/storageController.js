@@ -40,10 +40,9 @@ const dumpCollections = () => {
 
 const handleChanges = async (type, collectionName, changes) => {
   if (!adapters.storage || !data[collectionName]) return;
+  await new Promise((resolve) => setTimeout(resolve, 0));
   const collectionData = Array.from(data[collectionName].values()).map(objClone);
-  Promise.resolve()
-    .then(() => adapters.storage[type]({ collectionName, collectionData, changes }))
-    .catch(console.error);
+  await adapters.storage[type]({ collectionName, collectionData, changes });
 };
 
 const storageController = {
