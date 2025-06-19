@@ -50,7 +50,8 @@
   "exports": {
     ".": {
       "import": "./dist/stormflow.js",
-      "require": "./dist/stormflow.cjs"
+      "require": "./dist/stormflow.cjs",
+      "types": "./dist/stormflow.d.ts"
     },
     "./adapters/fileStorageAdapter": {
       "import": "./dist/adapters/fileStorageAdapter.js",
