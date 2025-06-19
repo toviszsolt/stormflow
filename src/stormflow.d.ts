@@ -8,10 +8,6 @@ export interface Options {
   verbose?: boolean;
   /** Enforce strict schema validation */
   strict?: boolean;
-  /** Data folder for file storage */
-  dataFolder?: string;
-  /** Throttle time for file writes */
-  throttle?: number;
 }
 
 /**
