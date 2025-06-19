@@ -334,14 +334,22 @@ const model = (collectionName = '', schema = {}) => {
     return resolveRefs(results);
   };
 
+  // Helper to wrap public read API with pre/post read middleware
+  const withReadMiddleware = async (input, fn) => {
+    await executeMiddleware('pre', collectionName, 'read', input);
+    const result = await fn();
+    await executeMiddleware('post', collectionName, 'read', result);
+    return result;
+  };
+
   return {
     // Implement methods:
     // schema, validate
     pre: (method, fn) => registerMiddleware('pre', collectionName, method, fn),
     post: (method, fn) => registerMiddleware('post', collectionName, method, fn),
-    find: async (query) => await findItems(query, true, true),
-    findOne: async (query) => await findOne(query, true, true),
-    findById: async (query) => await findById(query, true, true),
+    find: async (query) => withReadMiddleware(query, () => findItems(query, true, true)),
+    findOne: async (query) => withReadMiddleware(query, () => findOne(query, true, true)),
+    findById: async (id) => withReadMiddleware({ _id: id }, () => findById(id, true, true)),
     findByIdAndReplace: async (id, updates) => await idUpdateReplace(id, updates, true),
     findByIdAndUpdate: async (id, updates) => await idUpdateReplace(id, updates),
     findByIdAndDelete,

@@ -367,6 +367,18 @@ describe('model.post', () => {
   });
 });
 
+describe('model.pre (read)', () => {
+  it('pre read middleware csak publikus API-n fusson le', async () => {
+    const preRead = jest.fn();
+    testModel.pre('read', preRead);
+    await testModel.find({ name: 'John' });
+    await testModel.findOne({ name: 'Jane' });
+    const jane = await testModel.findOne({ name: 'Jane' });
+    await testModel.findById(jane._id);
+    expect(preRead).toHaveBeenCalledTimes(4);
+  });
+});
+
 describe('additional tests for model', () => {
   it('insertOne accepts document with missing fields when strict mode is disabled', async () => {
     resetConfig();
