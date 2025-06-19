@@ -74,16 +74,16 @@ export type MiddlewareFunction = (item: any) => Promise<void>;
 export interface StormFlowModel {
   /**
    * Register a middleware function to run before the specified action.
-   * @param method One of 'create', 'read', 'update', 'replace', 'delete'
+   * @param method One of 'create', 'read', 'update', 'replace', 'delete' vagy '*'
    * @param fn Middleware function to execute
    */
-  pre(method: 'create' | 'read' | 'update' | 'replace' | 'delete', fn: MiddlewareFunction): void;
+  pre(method: 'create' | 'read' | 'update' | 'replace' | 'delete' | '*', fn: MiddlewareFunction): void;
   /**
    * Register a middleware function to run after the specified action.
-   * @param method One of 'create' | 'read' | 'update' | 'replace' | 'delete'
+   * @param method One of 'create', 'read' | 'update' | 'replace' | 'delete' vagy '*'
    * @param fn Middleware function to execute
    */
-  post(method: 'create' | 'read' | 'update' | 'replace' | 'delete', fn: MiddlewareFunction): void;
+  post(method: 'create' | 'read' | 'update' | 'replace' | 'delete' | '*', fn: MiddlewareFunction): void;
   /** Inserts a single document */
   insertOne(item: any): Promise<any>;
   /** Inserts multiple documents */

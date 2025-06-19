@@ -91,11 +91,11 @@ await User.findByIdAndDelete(newUser._id);
 
 ### Middleware
 
-Register middleware for operations:
+Register middleware for operations (wildcard `*` is supported only for method):
 
 ```js
-User.pre('create', async (doc) => {
-  // Before creating user
+User.pre('*', async (doc) => {
+  // Before any operation
 });
 
 User.post('update', async (doc) => {
@@ -103,7 +103,7 @@ User.post('update', async (doc) => {
 });
 ```
 
-Supported methods: `'create' | 'read' | 'update' | 'replace' | 'delete'`.
+Supported methods: `'create' | 'read' | 'update' | 'replace' | 'delete' | '*'`.
 
 ### Querying
 

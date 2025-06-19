@@ -6,20 +6,23 @@ const middlewares = new Map();
 const allowedTypes = ['pre', 'post'];
 const allowedMethods = ['create', 'read', 'update', 'replace', 'delete'];
 
+const isAllowedType = (val) => allowedTypes.includes(val);
+const isAllowedMethod = (val) => val === '*' || allowedMethods.includes(val);
+
 const registerMiddleware = (type, collection, method, fn) => {
   if (getType(method) === 'array') {
     return method.map((el) => registerMiddleware(type, collection, el, fn));
   }
 
-  if (!allowedTypes.includes(type)) {
+  if (!isAllowedType(type)) {
     throw new Error(`Invalid middleware type: ${type}`);
   }
 
-  if (getType(collection) !== 'string') {
+  if (getType(collection) !== 'string' || collection === '*') {
     throw new Error(`Invalid middleware collection: ${collection}`);
   }
 
-  if (getType(method) !== 'string' || !allowedMethods.includes(method)) {
+  if (!isAllowedMethod(method)) {
     throw new Error(`Invalid middleware method: ${method}`);
   }
 
@@ -42,9 +45,9 @@ const unregisterMiddleware = (id) => {
 
 const executeOneMiddleware = async (type, collection, method, res) => {
   const results = [];
-  for (const middleware of middlewares.values()) {
-    if (middleware.type === type && middleware.collection === collection && middleware.method === method) {
-      results.push(middleware);
+  for (const mw of middlewares.values()) {
+    if (mw.type === type && mw.collection === collection && (mw.method === '*' || mw.method === method)) {
+      results.push(mw);
     }
   }
 

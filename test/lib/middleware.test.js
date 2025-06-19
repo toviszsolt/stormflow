@@ -27,11 +27,15 @@ describe('Middleware module', () => {
 
     it('registers successfully with valid inputs', () => {
       const id = registerMiddleware('pre', 'products', 'create', () => {});
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
       expect(typeof id).toBe('string');
     });
 
     it('registers multiple middleware if method is an array', () => {
       const ids = registerMiddleware('post', 'orders', ['create', 'update'], () => {});
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(...ids);
       expect(Array.isArray(ids)).toBe(true);
       expect(ids.length).toBe(2);
       ids.forEach((id) => expect(typeof id).toBe('string'));
@@ -45,6 +49,8 @@ describe('Middleware module', () => {
 
     it('removes existing middleware and returns true', () => {
       const id = registerMiddleware('pre', 'products', 'create', () => {});
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
       expect(unregisterMiddleware(id)).toBe(true);
     });
 
@@ -56,7 +62,9 @@ describe('Middleware module', () => {
   describe('executeMiddleware', () => {
     it('calls middleware callback once', async () => {
       const fn = jest.fn();
-      registerMiddleware('pre', 'products', 'create', fn);
+      const id = registerMiddleware('pre', 'products', 'create', fn);
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
       const res = {};
       await executeMiddleware('pre', 'products', 'create', res);
       expect(fn).toHaveBeenCalledTimes(1);
@@ -65,7 +73,9 @@ describe('Middleware module', () => {
 
     it('calls middleware multiple times if method array and multiple res', async () => {
       const fn = jest.fn();
-      registerMiddleware('pre', 'products', ['create', 'update'], fn);
+      const ids = registerMiddleware('pre', 'products', ['create', 'update'], fn);
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(...ids);
       const resArray = [{}, {}];
       await executeMiddleware('pre', 'products', 'create', resArray);
       await executeMiddleware('pre', 'products', 'update', resArray);
@@ -74,7 +84,9 @@ describe('Middleware module', () => {
 
     it('does not call middleware if type or method does not match', async () => {
       const fn = jest.fn();
-      registerMiddleware('pre', 'products', 'create', fn);
+      const id = registerMiddleware('pre', 'products', 'create', fn);
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
       await executeMiddleware('post', 'products', 'create', {});
       expect(fn).not.toHaveBeenCalled();
     });
@@ -83,9 +95,46 @@ describe('Middleware module', () => {
       const errorFn = jest.fn(async () => {
         throw new Error('fail');
       });
-      registerMiddleware('pre', 'products', 'create', errorFn);
+      const id = registerMiddleware('pre', 'products', 'create', errorFn);
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
       await expect(executeMiddleware('pre', 'products', 'create', {})).rejects.toThrow('fail');
       expect(errorFn).toHaveBeenCalledTimes(1);
     });
+  });
+
+  describe('wildcard middleware', () => {
+    it('calls middleware for any method when method is *', async () => {
+      const fn = jest.fn();
+      const id = registerMiddleware('pre', 'products', '*', fn);
+      globalThis.__registeredMiddlewareIds = globalThis.__registeredMiddlewareIds || [];
+      globalThis.__registeredMiddlewareIds.push(id);
+      await executeMiddleware('pre', 'products', 'create', {});
+      await executeMiddleware('pre', 'products', 'update', {});
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not call middleware for type wildcard', async () => {
+      const fn = jest.fn();
+      // type wildcard nem támogatott
+      expect(() => registerMiddleware('*', 'products', 'create', fn)).toThrow('Invalid middleware type: *');
+    });
+
+    it('does not call middleware for collection wildcard', async () => {
+      const fn = jest.fn();
+      // collection wildcard nem támogatott
+      expect(() => registerMiddleware('pre', '*', 'create', fn)).toThrow('Invalid middleware collection: *');
+    });
+  });
+
+  afterEach(() => {
+    // Az összes regisztrált middleware eltávolítása
+    // A registerMiddleware visszatérési értéke lehet string vagy tömb
+    if (globalThis.__registeredMiddlewareIds) {
+      for (const id of globalThis.__registeredMiddlewareIds) {
+        unregisterMiddleware(id);
+      }
+      globalThis.__registeredMiddlewareIds = [];
+    }
   });
 });
