@@ -8,14 +8,32 @@ export interface Options {
   verbose?: boolean;
   /** Enforce strict schema validation */
   strict?: boolean;
+  /** Data folder for file storage */
+  dataFolder?: string;
+  /** Throttle time for file writes */
+  throttle?: number;
 }
 
 /**
  * Definition of a single schema field.
  */
+export type TypeKeyword =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'date'
+  | 'array'
+  | 'object'
+  | StringConstructor
+  | NumberConstructor
+  | BooleanConstructor
+  | DateConstructor
+  | ArrayConstructor
+  | ObjectConstructor;
+
 export interface SchemaField {
   /** Data type (e.g., 'string', 'number', 'boolean', 'date', 'array', 'object') */
-  type: string;
+  type: TypeKeyword;
   /** Whether the field is required */
   required?: boolean;
   /** Default value for the field */
@@ -30,7 +48,22 @@ export interface SchemaField {
  * Full schema definition for a collection, allowing nested or array types.
  */
 export interface SchemaDefinition {
-  [key: string]: SchemaField | SchemaDefinition | [SchemaField];
+  [key: string]:
+    | SchemaField
+    | SchemaDefinition
+    | [SchemaField]
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'date'
+    | 'array'
+    | 'object'
+    | StringConstructor
+    | NumberConstructor
+    | BooleanConstructor
+    | DateConstructor
+    | ArrayConstructor
+    | ObjectConstructor;
 }
 
 /**

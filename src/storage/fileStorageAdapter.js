@@ -1,6 +1,12 @@
 import fsp from 'fs/promises';
 import path from 'path';
-import { ensureFolderExists, postProcessRestore, preProcessChanges, tryDeleteFile, convertJsonToGzip } from './helpers.js';
+import {
+  convertJsonToGzip,
+  ensureFolderExists,
+  postProcessRestore,
+  preProcessChanges,
+  tryDeleteFile,
+} from './helpers.js';
 
 const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = false }) => {
   const collectionThrottle = {};
@@ -76,7 +82,10 @@ const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = f
   };
 
   return {
-    init: async () => restoreDataFiles(),
+    init: async () => {
+      const collections = await restoreDataFiles();
+      return { collections };
+    },
     insert: async ({ collectionName, collectionData }) => throttleWrite(collectionName, collectionData),
     update: async ({ collectionName, collectionData }) => throttleWrite(collectionName, collectionData),
     delete: async ({ collectionName, collectionData }) => throttleWrite(collectionName, collectionData),
