@@ -364,7 +364,7 @@ describe('model.post', () => {
 });
 
 describe('model.pre (read)', () => {
-  it('pre read middleware csak publikus API-n fusson le', async () => {
+  it('pre read middleware should run only on public API', async () => {
     const preRead = jest.fn();
     testModel.pre('read', preRead);
     await testModel.find({ name: 'John' });
@@ -593,5 +593,43 @@ describe('model coverage tests', () => {
     const a = await m.insertOne({ name: 'A' });
     await m.deleteOne({ _id: a._id });
     await expect(m.replaceOne({ _id: a._id }, { name: 'B' })).rejects.toThrow();
+  });
+});
+
+describe('model.deleteOne edge cases', () => {
+  const userSchema = Schema({
+    email: { type: 'string', unique: true },
+    name: { type: 'string' },
+  });
+  const userModel = model('useremails', userSchema);
+
+  beforeEach(async () => {
+    await userModel.deleteMany({});
+    await userModel.insertMany([
+      { email: 'a@a.com', name: 'A' },
+      { email: 'b@b.com', name: 'B' },
+    ]);
+  });
+
+  it('deleteOne with non-existing email returns null, does not throw', async () => {
+    const deleted = await userModel.deleteOne({ email: 'notfound@a.com' });
+    expect(deleted).toBeNull();
+    const all = await userModel.find({});
+    expect(all.length).toBe(2);
+  });
+
+  it('deleteMany with non-existing email returns empty array, does not throw', async () => {
+    const deleted = await userModel.deleteMany({ email: 'notfound@a.com' });
+    expect(Array.isArray(deleted)).toBe(true);
+    expect(deleted.length).toBe(0);
+    const all = await userModel.find({});
+    expect(all.length).toBe(2);
+  });
+
+  it('findByIdAndDelete with non-existing id returns null, does not throw', async () => {
+    const deleted = await userModel.findByIdAndDelete('notfoundid');
+    expect(deleted).toBeNull();
+    const all = await userModel.find({});
+    expect(all.length).toBe(2);
   });
 });

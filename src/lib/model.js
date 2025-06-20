@@ -241,19 +241,19 @@ const model = (collectionName = '', schema = {}) => {
   };
 
   const deleteItems = async (items) => {
-    if (items.length > 0) {
+    if (items && items.length > 0) {
       await executeMiddleware('pre', collectionName, 'delete', items);
 
       for (const el of items) {
-        data[collectionName].delete(el._id);
+        if (el && el._id) data[collectionName].delete(el._id);
       }
 
       storageController.onDelete(collectionName, items);
 
       await executeMiddleware('post', collectionName, 'delete', items);
-    }
 
-    return items;
+      return items;
+    }
   };
 
   const insertOne = async (item) => {
@@ -317,21 +317,24 @@ const model = (collectionName = '', schema = {}) => {
   };
 
   const findByIdAndDelete = async (id) => {
-    const items = await findById(id);
-    const results = await deleteItems([items]);
+    const item = (await findById(id)) || null;
+    const results = await deleteItems([item]);
     return resolveRefs(results[0]);
   };
 
   const deleteOne = async (query) => {
-    const items = await findOne(query);
-    const results = await deleteItems([items]);
+    const item = (await findOne(query)) || null;
+    const results = await deleteItems([item]);
     return resolveRefs(results[0]);
   };
 
   const deleteMany = async (query) => {
     const items = await findItems(query);
-    const results = await deleteItems(items);
-    return resolveRefs(results);
+    if (items && items.length > 0) {
+      const results = await deleteItems(items);
+      return resolveRefs(results);
+    }
+    return [];
   };
 
   // Helper to wrap public read API with pre/post read middleware
