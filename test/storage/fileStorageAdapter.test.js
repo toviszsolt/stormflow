@@ -19,6 +19,7 @@ describe('fileStorageAdapter', () => {
   });
 
   afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
     await fsp.rm(storageDir, { recursive: true, force: true });
   });
 
@@ -29,8 +30,10 @@ describe('fileStorageAdapter', () => {
 
   it('should handle write errors', async () => {
     const invalidPath = path.join(testRoot, 'nonexistent');
-    const adapter = fileStorageAdapter({ dataFolder: invalidPath });
+    await fsp.mkdir(invalidPath, { recursive: true });
+    const adapter = fileStorageAdapter({ dataFolder: invalidPath, throttle: 100 });
     await adapter.insert({ collectionName: 'test', collectionData: [{ id: 1 }] });
+    await new Promise((resolve) => setTimeout(resolve, 150));
   });
 
   it('should handle throttled writes', async () => {

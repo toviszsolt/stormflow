@@ -28,7 +28,8 @@ describe('helpers', () => {
   });
 
   it('should try to delete non-existing file without error', async () => {
-    await expect(helpers.tryDeleteFile('./not-exist-file')).resolves.toBeUndefined();
+    const fakeFile = path.join(testRoot, 'not-exist-file');
+    await expect(helpers.tryDeleteFile(fakeFile)).resolves.toBeUndefined();
   });
 
   it('should preProcessChanges and postProcessRestore', async () => {
@@ -62,7 +63,7 @@ describe('helpers edge cases', () => {
     const files = await fsp.readdir(testFolder);
     expect(files.some((f) => f.endsWith('.sfc'))).toBe(true);
     for (const f of files) await fsp.unlink(path.join(testFolder, f));
-    await fsp.rmdir(testFolder);
+    await fsp.rm(testFolder, { recursive: true, force: true });
   });
 
   it('convertJsonToGzip should handle readFile error gracefully', async () => {
