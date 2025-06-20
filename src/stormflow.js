@@ -1,4 +1,4 @@
-import { config, defaultConfig, getConfig, setConfig } from './lib/config.js';
+import config from './lib/config.js';
 import model from './lib/model.js';
 import { Schema } from './lib/schema.js';
 import { initAdapters } from './storage/storageController.js';
@@ -26,12 +26,12 @@ let init = false;
  * @param {Object|null} [backupAdapter=null] - Custom backup adapter to use, or null for default.
  * @returns {Promise<void>} Resolves when initialization is complete.
  */
-const start = async (options = defaultConfig, storageAdapter = null, backupAdapter = null) => {
+const start = async (options = config.getDefaultConfig(), storageAdapter = null, backupAdapter = null) => {
   if (!init) {
     init = true;
-    setConfig(options);
+    config.setConfig(options);
     await initAdapters({ storageAdapter, backupAdapter });
-  } else if (config.strict) {
+  } else if (config.get('strict')) {
     const msg = 'Stormflow is already initialized.';
     throw new Error(msg);
   }
@@ -39,8 +39,8 @@ const start = async (options = defaultConfig, storageAdapter = null, backupAdapt
 
 export default {
   start,
-  getConfig,
-  setConfig,
+  getConfig: config.getConfig,
+  setConfig: config.setConfig,
   Schema,
   model,
   utils,

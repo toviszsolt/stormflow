@@ -1,12 +1,11 @@
 import Benchmark from 'benchmark';
-import ConfigManager from '../src/utils/ConfigManager.js';
+import configManager from '../src/utils/configManager.js';
 import { uniqueId } from '../src/utils/hash.js';
 import { objClone, objPathResolve, objPathSet, objTraverse } from '../src/utils/object.js';
-import { getType } from '../src/utils/type.js';
 import { timeFromStr, timeNow, timeToDateObj, timeToDateStr } from '../src/utils/unixtime.js';
 
 const defaultConfig = { strict: true, verbose: false };
-const configManager = new ConfigManager(defaultConfig);
+const config = configManager(defaultConfig);
 
 const object = { a: 1, b: 2, c: [1, 2], d: { a: 1, b: 2 } };
 const collection = Array(10000).fill(objClone(object));
@@ -14,14 +13,23 @@ const query = { a: { $eq: 1 } };
 
 const runSuite1 = () => {
   new Benchmark.Suite('config manager')
+    .add('getDefaultConfig', () => {
+      config.getDefaultConfig();
+    })
+    .add('set', () => {
+      config.set('strict', false);
+    })
+    .add('get', () => {
+      config.get('strict');
+    })
     .add('getConfig', () => {
-      configManager.getConfig();
+      config.getConfig();
     })
     .add('setConfig', () => {
-      configManager.setConfig({ strict: false });
+      config.setConfig({ strict: false });
     })
     .add('resetConfig', () => {
-      configManager.resetConfig();
+      config.resetConfig();
     })
     .on('cycle', (event) => {
       console.log(String(event.target));

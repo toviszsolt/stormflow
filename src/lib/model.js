@@ -3,7 +3,7 @@ import { uniqueId } from '../utils/hash.js';
 import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
 import { getType } from '../utils/type.js';
 import { timeNow } from '../utils/unixtime.js';
-import { config } from './config.js';
+import config from './config.js';
 import data from './data.js';
 import { executeMiddleware, registerMiddleware } from './middleware.js';
 import { applyQuery } from './query.js';
@@ -100,7 +100,7 @@ const model = (collectionName = '', schema = {}) => {
         const timestamp = timeNow();
         el._id = uniqueId();
         el._version = 1;
-        if (config.defaultFields) {
+        if (config.get('defaultFields')) {
           el._created = timestamp;
           el._updated = timestamp;
         }
@@ -214,7 +214,7 @@ const model = (collectionName = '', schema = {}) => {
       if (changedFields) {
         el._version = (el._version || 1) + 1;
 
-        if (config.defaultFields) {
+        if (config.get('defaultFields')) {
           el._created ??= timestamp;
           el._updated = timestamp;
         }

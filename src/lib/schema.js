@@ -1,7 +1,7 @@
 import { objClone, objPathResolve, objPathSet, objTraverse } from '../utils/object.js';
 import { getType } from '../utils/type.js';
 import { timeFromStr } from '../utils/unixtime.js';
-import { config } from './config.js';
+import config from './config.js';
 
 const allowedTypes = ['string', 'number', 'boolean', 'date'];
 const allowedDefinitions = ['type', 'required', 'default', 'unique', '$ref'];
@@ -87,7 +87,7 @@ const applySchema = (source, schema) => {
   const target = {};
 
   if (source === undefined) {
-    if (config.strict) {
+    if (config.get('strict')) {
       const msg = `Invalid "undefined" source object.`;
       throw new Error(msg);
     }
@@ -95,7 +95,7 @@ const applySchema = (source, schema) => {
   }
 
   if (getType(schema) !== 'object') {
-    if (config.strict) {
+    if (config.get('strict')) {
       const msg = `Invalid "object" type of schema definition.`;
       throw new Error(msg);
     }
@@ -118,7 +118,7 @@ const applySchema = (source, schema) => {
     if (valueSource === undefined || typeParent === 'array') return;
 
     // Validate type of source value
-    if (config.strict && !typeMatch) {
+    if (config.get('strict') && !typeMatch) {
       const msg = `Invalid type of "${path}" value. Expected type is "${typeSchema}".`;
       throw new Error(msg);
     }

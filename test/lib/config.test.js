@@ -1,7 +1,10 @@
-import { defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
+import config from '../../src/lib/config.js';
+
+const { getDefaultConfig, getConfig, setConfig } = config;
 
 describe('defaultConfig', () => {
   it('should have the correct default keys', () => {
+    const defaultConfig = getDefaultConfig();
     expect(defaultConfig).toHaveProperty('strict');
     expect(defaultConfig).toHaveProperty('defaultFields');
     expect(defaultConfig).toHaveProperty('verbose');

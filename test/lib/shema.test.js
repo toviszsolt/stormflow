@@ -1,7 +1,7 @@
-import { setConfig } from '../../src/lib/config.js';
+import config from '../../src/lib/config.js';
 import { Schema, applySchema } from '../../src/lib/schema.js';
 
-const setStrictMode = (strict) => setConfig({ strict });
+const setStrictMode = (strict) => config.setConfig({ strict });
 
 beforeEach(() => {
   setStrictMode(true);

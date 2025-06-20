@@ -2,71 +2,82 @@ import { objClone } from './object.js';
 import { getType } from './type.js';
 
 /**
- * ConfigManager class for managing application configuration.
- * @class
+ * Létrehoz egy konfigurációkezelő objektumot closure-ral.
+ * @param {Object} defaultConfig - Az alapértelmezett konfiguráció.
+ * @returns {Object} Konfigurációkezelő API
  */
-class ConfigManager {
-  constructor(defaultConfig = {}) {
-    if (getType(defaultConfig) !== 'object') {
-      throw new Error('defaultConfig must be an object');
-    }
-
-    this.defaultConfig = objClone(defaultConfig);
-    this.config = objClone(defaultConfig);
+const configManager = (defaultConfig = {}) => {
+  if (getType(defaultConfig) !== 'object') {
+    throw new Error('defaultConfig must be an object');
   }
 
-  /**
-   * Returns a clone of the current configuration.
-   * @returns {Object} The cloned configuration.
-   */
-  getConfig() {
-    return objClone(this.config);
-  }
+  let _defaultConfig = objClone(defaultConfig);
+  let _config = objClone(defaultConfig);
 
-  /**
-   * Validates the provided options against the allowed keys and types.
-   * @param {Object} options - The options to validate.
-   * @throws {Error} If invalid options are provided.
-   */
-  mergeOptions(options) {
-    const allowedKeys = Object.keys(this.defaultConfig);
-
+  const mergeOptions = (options) => {
+    const allowedKeys = Object.keys(_defaultConfig);
     if (getType(options) !== 'object') {
       throw new Error('Invalid type of options. Expected type is "object"');
     }
-
     Object.keys(options).forEach((key) => {
       if (!allowedKeys.includes(key)) {
         const allowedKeysAsString = allowedKeys.join('", "');
         throw new Error(`Invalid "${key}" key in options.\r\nAllowed keys: "${allowedKeysAsString}"`);
       }
-
-      const typeDefault = getType(this.defaultConfig[key]);
+      const typeDefault = getType(_defaultConfig[key]);
       const typeOptions = getType(options[key]);
-
       if (typeOptions !== typeDefault) {
         throw new Error(`Invalid type of "${key}" key in options. Expected type is ${typeDefault}`);
       }
     });
-  }
+  };
 
-  /**
-   * Merges the provided options with the default configuration.
-   * @param {Object} options - The options to merge.
-   * @returns {void}
-   */
-  setConfig(options) {
-    this.mergeOptions(options);
-    Object.assign(this.config, this.defaultConfig, options);
-  }
+  return {
+    /**
+     * Visszaadja az alapértelmezett konfiguráció másolatát.
+     * @returns {Object}
+     */
+    getDefaultConfig() {
+      return objClone(_defaultConfig);
+    },
+    /**
+     * Visszaállítja a konfigurációt az alapértelmezettre.
+     */
+    resetConfig() {
+      _config = objClone(_defaultConfig);
+    },
+    /**
+     * Visszaadja az aktuális konfiguráció másolatát.
+     * @returns {Object}
+     */
+    getConfig() {
+      return objClone(_config);
+    },
+    /**
+     * Beállítja a konfigurációt az opciókkal.
+     * @param {Object} options
+     */
+    setConfig(options) {
+      mergeOptions(options);
+      Object.assign(_config, _defaultConfig, options);
+    },
+    /**
+     * Lekér egy konfigurációs értéket.
+     * @param {string} key
+     * @returns {*}
+     */
+    get(key) {
+      return _config[key];
+    },
+    /**
+     * Beállít egy konfigurációs értéket.
+     * @param {string} key
+     * @param {*} value
+     */
+    set(key, value) {
+      _config[key] = value;
+    },
+  };
+};
 
-  /**
-   * Resets the configuration to the default values.
-   * @returns {void}
-   */
-  resetConfig() {
-    this.config = objClone(this.defaultConfig);
-  }
-}
-
-export default ConfigManager;
+export default configManager;

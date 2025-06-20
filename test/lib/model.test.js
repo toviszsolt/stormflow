@@ -1,13 +1,9 @@
-import { defaultConfig, getConfig, setConfig } from '../../src/lib/config.js';
+import config from '../../src/lib/config.js';
 import data from '../../src/lib/data.js';
 import model from '../../src/lib/model.js';
 import { Schema } from '../../src/lib/schema.js';
 
-const resetConfig = () => {
-  setConfig({ ...defaultConfig });
-};
-
-resetConfig();
+config.resetConfig();
 
 const storageData = data;
 
@@ -29,7 +25,7 @@ const testData = [
 ];
 
 beforeEach(async () => {
-  resetConfig();
+  config.resetConfig();
   await testModel.deleteMany({});
   await testModel.insertMany(testData);
 });
@@ -71,7 +67,7 @@ describe('model.insertOne', () => {
   });
 
   it('insert without defaultFields', async () => {
-    setConfig({ defaultFields: false });
+    config.setConfig({ defaultFields: false });
     const data = { name: 'Loren', age: 35, address: { city: 'Manhattan' } };
     const created = await testModelNoSchema.insertOne(data);
     expect(created).toEqual(expect.objectContaining(data));
@@ -82,7 +78,7 @@ describe('model.insertOne', () => {
   });
 
   it('insert empty document', async () => {
-    setConfig({ strict: false });
+    config.setConfig({ strict: false });
     const created = await testModel.insertOne({});
     expect(created).toBeUndefined();
   });
@@ -175,7 +171,7 @@ describe('model.updateOne', () => {
   });
 
   it('update a document without defaultFields', async () => {
-    setConfig({ defaultFields: false });
+    config.setConfig({ defaultFields: false });
     const data = { age: 21, address: { city: 'Orlando' } };
     await testModel.insertOne({ name: 'Angela', age: 19 });
     const updated = await testModel.updateOne({ name: 'Angela' }, data);
@@ -381,8 +377,8 @@ describe('model.pre (read)', () => {
 
 describe('additional tests for model', () => {
   it('insertOne accepts document with missing fields when strict mode is disabled', async () => {
-    resetConfig();
-    setConfig({ strict: false });
+    config.resetConfig();
+    config.setConfig({ strict: false });
     const data = { name: 'Anna' };
     const created = await testModel.insertOne(data);
     expect(created.name).toBe('Anna');

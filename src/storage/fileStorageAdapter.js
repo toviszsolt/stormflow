@@ -1,5 +1,6 @@
 import fsp from 'fs/promises';
 import path from 'path';
+import configManager from '../utils/configManager.js';
 import {
   convertJsonToGzip,
   ensureFolderExists,
@@ -8,15 +9,21 @@ import {
   tryDeleteFile,
 } from './helpers.js';
 
-const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = false }) => {
+const fileStorageAdapter = (options = {}) => {
+  const config = configManager({
+    dataFolder: './data',
+    throttle: 100,
+    verbose: false,
+    ...options,
+  });
   const collectionThrottle = {};
   const pendingWrites = {};
 
   const restoreDataFiles = async () => {
-    await ensureFolderExists(dataFolder);
-    await convertJsonToGzip(dataFolder, verbose);
+    await ensureFolderExists(config.get('dataFolder'));
+    await convertJsonToGzip(config.get('dataFolder'), config.get('verbose'));
 
-    const files = await fsp.readdir(dataFolder);
+    const files = await fsp.readdir(config.get('dataFolder'));
     const sfcFiles = files.filter((file) => file.endsWith('.sfc'));
 
     if (sfcFiles.length > 0) {
@@ -26,7 +33,7 @@ const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = f
     const fileEntries = await Promise.all(
       sfcFiles.map(async (fileName) => {
         console.log('[FileStorage]', `  → ${fileName}`);
-        const filePath = path.join(dataFolder, fileName);
+        const filePath = path.join(config.get('dataFolder'), fileName);
         const fileContent = await fsp.readFile(filePath);
         return { fileName, fileContent };
       }),
@@ -37,26 +44,26 @@ const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = f
 
   const writeDataFile = async (collectionName, collectionData) => {
     try {
-      await ensureFolderExists(dataFolder);
+      await ensureFolderExists(config.get('dataFolder'));
 
-      if (verbose) console.log('[FileStorage]', `Compress data before writing: ${collectionName}`);
+      if (config.get('verbose')) console.log('[FileStorage]', `Compress data before writing: ${collectionName}`);
       const { fileName, fileContent } = await preProcessChanges(collectionName, collectionData);
-      const tmpFilePath = path.join(dataFolder, `${fileName}.tmp`);
-      const targetFilePath = path.join(dataFolder, fileName);
+      const tmpFilePath = path.join(config.get('dataFolder'), `${fileName}.tmp`);
+      const targetFilePath = path.join(config.get('dataFolder'), fileName);
 
       if (collectionData.length === 0) {
-        if (verbose) console.log('[FileStorage]', `Removing empty file: ${targetFilePath}`);
-        await tryDeleteFile(targetFilePath, verbose);
+        if (config.get('verbose')) console.log('[FileStorage]', `Removing empty file: ${targetFilePath}`);
+        await tryDeleteFile(targetFilePath, config.get('verbose'));
         return;
       }
 
-      if (verbose) console.log('[FileStorage]', `Writing data to temp file: ${tmpFilePath}`);
+      if (config.get('verbose')) console.log('[FileStorage]', `Writing data to temp file: ${tmpFilePath}`);
       await fsp.writeFile(tmpFilePath, fileContent);
       await new Promise((r) => setTimeout(r, 50));
 
-      if (verbose) console.log('[FileStorage]', `Move data to final file: ${targetFilePath}`);
+      if (config.get('verbose')) console.log('[FileStorage]', `Move data to final file: ${targetFilePath}`);
       await fsp.rename(tmpFilePath, targetFilePath);
-      await tryDeleteFile(tmpFilePath, verbose);
+      await tryDeleteFile(tmpFilePath, config.get('verbose'));
     } catch (err) {
       console.error(`Failed to write ${collectionName}:`, err);
     }
@@ -77,7 +84,7 @@ const fileStorageAdapter = ({ dataFolder = './data', throttle = 100, verbose = f
         if (pendingWrites[collectionName]) {
           throttleWrite(collectionName, pendingWrites[collectionName]);
         }
-      }, throttle);
+      }, config.get('throttle'));
     }
   };
 
