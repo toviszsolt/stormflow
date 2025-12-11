@@ -1,6 +1,6 @@
 {
   "name": "stormflow",
-  "version": "1.1.6",
+  "version": "1.1.8",
   "description": "StormFlow is a versatile Node.js data management library designed for efficient data management.",
   "keywords": [
     "stormflow",
@@ -38,7 +38,7 @@
   "homepage": "https://github.com/toviszsolt/stormflow",
   "repository": {
     "type": "git",
-    "url": "https://github.com/toviszsolt/stormflow"
+    "url": "git+https://github.com/toviszsolt/stormflow.git"
   },
   "bugs": {
     "url": "https://github.com/toviszsolt/stormflow/issues"
@@ -78,20 +78,20 @@
     "esbuild": "esbuild src/stormflow.js --bundle --platform=node --minify --target=node22 --outfile=stormflow-build.js --external:archiver"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.27.2",
-    "@rollup/plugin-commonjs": "^28.0.6",
+    "@babel/preset-env": "^7.28.5",
+    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@types/jest": "^30.0.0",
     "archiver": "^7.0.1",
     "benchmark": "^2.1.4",
     "blocked-at": "^1.2.0",
-    "esbuild": "^0.25.5",
-    "jest": "^30.0.2",
+    "esbuild": "^0.27.1",
+    "jest": "^30.2.0",
     "moment-timezone": "^0.6.0",
-    "rollup": "^4.44.0",
+    "rollup": "^4.53.3",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-delete": "^3.0.1",
+    "rollup-plugin-delete": "^3.0.2",
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {}
