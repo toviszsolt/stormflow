@@ -1,14 +1,8 @@
-[![GitHub License](https://img.shields.io/github/license/toviszsolt/stormflow?style=flat)](https://github.com/toviszsolt/stormflow/blob/main/LICENSE)
-[![npm](https://img.shields.io/npm/v/stormflow?style=flat&color=red)](https://www.npmjs.com/package/@toviszsolt/stormflow)
-[![GitHub Repo stars](https://img.shields.io/github/stars/toviszsolt/stormflow?color=DAAA3F)](https://github.com/toviszsolt/stormflow/stargazers)
-[![Run tests](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml/badge.svg)](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/toviszsolt/stormflow/branch/main/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow)
-[![Sponsor](https://img.shields.io/static/v1?label=sponsor&message=❤&color=ff69b4)](https://github.com/sponsors/toviszsolt)
+[![GitHub License](https://img.shields.io/github/license/toviszsolt/stormflow?style=flat)](https://github.com/toviszsolt/stormflow/blob/main/LICENSE) [![npm](https://img.shields.io/npm/v/stormflow?style=flat&color=red)](https://www.npmjs.com/package/stormflow) [![GitHub Repo stars](https://img.shields.io/github/stars/toviszsolt/stormflow?color=DAAA3F)](https://github.com/toviszsolt/stormflow/stargazers) [![Run tests](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml/badge.svg)](https://github.com/toviszsolt/stormflow/actions/workflows/main.yml) [![codecov](https://codecov.io/gh/toviszsolt/stormflow/branch/main/graph/badge.svg?token=IONV9YMZXG)](https://codecov.io/gh/toviszsolt/stormflow) [![Sponsor](https://img.shields.io/static/v1?label=sponsor&message=❤&color=ff69b4)](https://github.com/sponsors/toviszsolt)
 
 # Stormflow
 
-A lightweight, flexible data modeling and storage library for Node.js applications. Stormflow enables you to define data
-schemas, manage collections, and perform CRUD operations easily, without the overhead of a full database system.
+A lightweight, flexible data modeling and storage library for Node.js applications. Stormflow enables you to define data schemas, manage collections, and perform CRUD operations easily, without the overhead of a full database system.
 
 ## Key Features
 
@@ -142,13 +136,11 @@ const result = await User.find({
 
 ### Storage Adapters
 
-Stormflow uses a pluggable storage adapter system. The default file-based storage is implemented via a storage adapter,
-but you can provide your own adapter for custom persistence.
+Stormflow uses a pluggable storage adapter system. The default file-based storage is implemented via a storage adapter, but you can provide your own adapter for custom persistence.
 
 #### File Storage Adapter
 
-The file storage adapter persists collections in a specified directory. You can configure the location and behavior via
-options.
+The file storage adapter persists collections in a specified directory. You can configure the location and behavior via options.
 
 Example usage:
 
@@ -202,8 +194,7 @@ await db.start({}, storage, backup);
 
 ## API Reference
 
-- `start(options?: Options, storageAdapter?: any, backupAdapter?: any): Promise<void>` — Start Stormflow with
-  configuration.
+- `start(options?: Options, storageAdapter?: any, backupAdapter?: any): Promise<void>` — Start Stormflow with configuration.
 - `setConfig(options: Options): void` — Update configuration at runtime.
 - `getConfig(): Options` — Get current configuration.
 - `Schema(definition: SchemaDefinition): SchemaDefinition` — Create a schema.
@@ -217,6 +208,4 @@ See [Code of Conduct](./CODE_OF_CONDUCT.md), [Contributing](./CONTRIBUTING.md), 
 
 MIT License © 2022–2024 [Zsolt Tövis](https://github.com/toviszsolt)
 
-If you find this project useful, please consider [sponsoring me on GitHub](https://github.com/sponsors/toviszsolt),
-[PayPal](https://www.paypal.com/paypalme/toviszsolt), or
-[give the repo a star](https://github.com/toviszsolt/stormflow).
+If you find this project useful, please consider [sponsoring me on GitHub](https://github.com/sponsors/toviszsolt), [PayPal](https://www.paypal.com/paypalme/toviszsolt), or [give the repo a star](https://github.com/toviszsolt/stormflow).
