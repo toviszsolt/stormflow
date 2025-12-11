@@ -26,7 +26,7 @@ jobs:
           cache: 'yarn'
       - name: Install
         run: |
-          yarn install
+          yarn install --ignore-engines
       - name: Build
         run: yarn build
       - name: Test
