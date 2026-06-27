@@ -21,7 +21,12 @@ describe('fileBackupAdapter', () => {
   });
 
   afterEach(async () => {
-    await fsp.rm(backupDir, { recursive: true, force: true });
+    try {
+      await fsp.rm(backupDir, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`Warning: Could not remove backup directory: ${error.message}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
   it('should initialize and call ensureFolderExists', async () => {

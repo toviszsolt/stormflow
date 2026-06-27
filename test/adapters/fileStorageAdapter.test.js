@@ -1,6 +1,7 @@
 import fsp from 'fs/promises';
 import path from 'path';
 import fileStorageAdapter from '../../src/adapters/fileStorageAdapter.js';
+import { storageController } from '../../src/adapters/storageController.js';
 
 const testRoot = './test-data';
 const storageDir = path.join(testRoot, 'storage');
@@ -11,7 +12,11 @@ describe('fileStorageAdapter', () => {
   });
 
   afterAll(async () => {
-    await fsp.rm(testRoot, { recursive: true, force: true });
+    try {
+      await fsp.rm(testRoot, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`Warning: Could not remove test directory: ${error.message}`);
+    }
   });
 
   beforeEach(async () => {
@@ -19,8 +24,14 @@ describe('fileStorageAdapter', () => {
   });
 
   afterEach(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    await fsp.rm(storageDir, { recursive: true, force: true });
+    storageController.stopBackup();
+    try {
+      await fsp.rm(storageDir, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`Warning: Could not remove storage directory: ${error.message}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
   it('should handle write with empty collection', async () => {
