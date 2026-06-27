@@ -12,7 +12,11 @@ describe('storage', () => {
   });
 
   afterAll(async () => {
-    await fsp.rm(testRoot, { recursive: true, force: true });
+    try {
+      await fsp.rm(testRoot, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`Warning: Could not remove test directory: ${error.message}`);
+    }
   });
 
   beforeEach(async () => {
