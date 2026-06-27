@@ -5,6 +5,8 @@ import fileBackupAdapter from '../../src/adapters/fileBackupAdapter.js';
 const testRoot = './test-data';
 const backupDir = path.join(testRoot, 'backup');
 
+const randomFolderName = () => `test-backup-${Math.random().toString(36).substring(2, 15)}`;
+
 describe('fileBackupAdapter', () => {
   beforeAll(async () => {
     await fsp.mkdir(testRoot, { recursive: true });
@@ -23,7 +25,7 @@ describe('fileBackupAdapter', () => {
   });
 
   it('should initialize and call ensureFolderExists', async () => {
-    const backupFolder = path.join(testRoot, 'test-backup');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     const result = await adapter.init();
     expect(result).toHaveProperty('backupInterval');
@@ -32,26 +34,26 @@ describe('fileBackupAdapter', () => {
 
 describe('fileBackupAdapter edge cases', () => {
   it('should skip backup if data is empty', async () => {
-    const backupFolder = path.join(testRoot, './test-backup-empty');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({})).resolves.toBeUndefined();
     await expect(adapter.backup(null)).resolves.toBeUndefined();
   });
 
   it('should handle backup error gracefully', async () => {
-    const backupFolder = path.join(testRoot, './invalid-folder');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({ test: [{ _id: 1 }] })).resolves.toBeUndefined();
   });
 
   it('should handle cleanExpiredBackupFiles error gracefully', async () => {
-    const backupFolder = path.join(testRoot, './invalid-folder');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({ test: [{ _id: 1 }] })).resolves.toBeUndefined();
   });
 
   it('should call backup and create a tar file', async () => {
-    const backupFolder = path.join(testRoot, './test-backup-real');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await fsp.mkdir(backupFolder, { recursive: true });
     await adapter.backup({ test: [{ _id: 1 }] });
@@ -65,13 +67,13 @@ describe('fileBackupAdapter edge cases', () => {
 
 describe('fileBackupAdapter edge/error coverage', () => {
   it('should catch error in backup (simulate archiver error)', async () => {
-    const backupFolder = path.join(testRoot, './test-backup');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({ test: undefined })).resolves.toBeUndefined();
   });
 
   it('should catch error in cleanExpiredBackupFiles', async () => {
-    const backupFolder = path.join(testRoot, './invalid-folder');
+    const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({ test: [{ _id: 1 }] })).resolves.toBeUndefined();
   });
@@ -118,7 +120,7 @@ describe('fileBackupAdapter', () => {
   });
 
   it('should handle file system errors', async () => {
-    const invalidPath = path.join(testRoot, 'nonexistent');
+    const invalidPath = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder: invalidPath });
     await expect(adapter.backup({ test: [{ id: 1 }] })).resolves.toBeUndefined();
   });
