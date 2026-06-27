@@ -59,7 +59,6 @@ const fileStorageAdapter = (options = {}) => {
 
       if (config.get('verbose')) console.log('[FileStorage]', `Writing data to temp file: ${tmpFilePath}`);
       await fsp.writeFile(tmpFilePath, fileContent);
-      // await new Promise((r) => setTimeout(r, 50));
 
       if (config.get('verbose')) console.log('[FileStorage]', `Move data to final file: ${targetFilePath}`);
       await fsp.rename(tmpFilePath, targetFilePath);
