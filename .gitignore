@@ -5,6 +5,6 @@
 /samples/
 .env
 .env*
-
+/*.js.txt
 # stryker temp files
 .stryker-tmp
