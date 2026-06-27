@@ -1,7 +1,7 @@
 import blockedAt from 'blocked-at';
 import { performance } from 'perf_hooks';
-import fileBackupAdapter from '../src/storage/fileBackupAdapter.js';
-import fileStorageAdapter from '../src/storage/fileStorageAdapter.js';
+import fileBackupAdapter from '../src/adapters/fileBackupAdapter.js';
+import fileStorageAdapter from '../src/adapters/fileStorageAdapter.js';
 import db from '../src/stormflow.js';
 
 const startInit = performance.now();
