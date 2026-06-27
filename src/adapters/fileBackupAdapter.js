@@ -1,7 +1,6 @@
-import archiver from 'archiver';
-import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
+import * as tar from 'tar';
 import configManager from '../utils/configManager.js';
 import { ensureFolderExists, preProcessBackup, tryDeleteFile } from './helpers.js';
 
@@ -14,25 +13,26 @@ const fileBackupAdapter = (options = {}) => {
     ...options,
   });
 
-  const cleanExpiredBackupFiles = async (backupDir, maxBackups = 5, verbose = false) => {
+  const cleanExpiredBackupFiles = async () => {
     try {
-      const files = await fsp.readdir(backupDir);
+      const { backupFolder, maxBackups, verbose } = config.getConfig();
+      const files = await fsp.readdir(backupFolder);
       const tarFiles = await Promise.all(
         files
           .filter((f) => f.endsWith('.tar'))
           .map(async (f) => ({
             name: f,
-            time: (await fsp.stat(path.join(backupDir, f))).mtime.getTime(),
+            time: (await fsp.stat(path.join(backupFolder, f))).mtime.getTime(),
           })),
       );
 
-      if (tarFiles.length > config.get('maxBackups')) {
+      if (tarFiles.length > maxBackups) {
         tarFiles.sort((a, b) => b.time - a.time);
-        const toDelete = tarFiles.slice(config.get('maxBackups'));
+        const toDelete = tarFiles.slice(maxBackups);
         for (const file of toDelete) {
-          const fullPath = path.join(backupDir, file.name);
-          if (config.get('verbose')) console.log('Deleting expired backup:', fullPath);
-          await tryDeleteFile(fullPath, config.get('verbose'));
+          const fullPath = path.join(backupFolder, file.name);
+          if (verbose) console.log('Deleting expired backup:', fullPath);
+          await tryDeleteFile(fullPath, verbose);
         }
       }
     } catch (err) {
@@ -41,49 +41,53 @@ const fileBackupAdapter = (options = {}) => {
   };
 
   const backup = async (data) => {
+    const { verbose, backupFolder } = config.getConfig();
+
     if (!data || Object.keys(data).length === 0) {
-      if (config.get('verbose')) console.warn('Backup data is empty, skipping backup.');
+      if (verbose) console.warn('Backup data is empty, skipping backup.');
       return;
     }
 
-    await ensureFolderExists(config.get('backupFolder'));
+    await ensureFolderExists(backupFolder);
 
     const filename = `${Date.now()}.tar`;
-    const tmpFilePath = path.join(config.get('backupFolder'), `${filename}.tmp`);
-    const targetFilePath = path.join(config.get('backupFolder'), filename);
+    const tmpFilePath = path.join(backupFolder, `${filename}.tmp`);
+    const targetFilePath = path.join(backupFolder, filename);
 
     try {
-      const output = fs.createWriteStream(tmpFilePath);
-      const archive = archiver('tar', { gzip: false });
-
-      archive.pipe(output);
-
       const files = await preProcessBackup(data);
+      const tmpDir = path.join(backupFolder, `_tmp_${Date.now()}`);
+      await fsp.mkdir(tmpDir, { recursive: true });
 
-      for (const { fileName, fileContent } of files) {
-        archive.append(fileContent, { name: fileName });
-        if (config.get('verbose')) console.log(`Prepared for backup: ${fileName}`);
+      try {
+        for (const { fileName, fileContent } of files) {
+          await fsp.writeFile(path.join(tmpDir, fileName), fileContent);
+          if (verbose) console.log(`Prepared for backup: ${fileName}`);
+        }
+
+        await tar.create(
+          { file: tmpFilePath, gzip: false, cwd: tmpDir },
+          files.map((f) => f.fileName),
+        );
+      } finally {
+        await fsp.rm(tmpDir, { recursive: true, force: true });
       }
-
-      await new Promise((resolve, reject) => {
-        output.on('close', () => resolve(true));
-        archive.on('error', reject);
-        archive.finalize();
-      });
 
       await fsp.rename(tmpFilePath, targetFilePath);
 
-      if (config.get('verbose')) console.log(`Backup file created: ${targetFilePath}`);
+      if (verbose) console.log(`Backup file created: ${targetFilePath}`);
 
-      await cleanExpiredBackupFiles(config.get('backupFolder'), config.get('maxBackups'), config.get('verbose'));
+      await cleanExpiredBackupFiles();
     } catch (err) {
       console.error('Backup error:', err);
+      await tryDeleteFile(tmpFilePath, verbose);
     }
   };
 
   const init = async () => {
-    await ensureFolderExists(config.get('backupFolder'));
-    return { backupInterval: config.get('backupInterval') };
+    const { backupFolder, backupInterval } = config.getConfig();
+    await ensureFolderExists(backupFolder);
+    return { backupInterval };
   };
 
   return { backup, init };

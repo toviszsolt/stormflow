@@ -20,10 +20,12 @@ const fileStorageAdapter = (options = {}) => {
   const pendingWrites = {};
 
   const restoreDataFiles = async () => {
-    await ensureFolderExists(config.get('dataFolder'));
-    await convertJsonToGzip(config.get('dataFolder'), config.get('verbose'));
+    const { verbose, dataFolder } = config.getConfig();
 
-    const files = await fsp.readdir(config.get('dataFolder'));
+    await ensureFolderExists(dataFolder);
+    await convertJsonToGzip(dataFolder, verbose);
+
+    const files = await fsp.readdir(dataFolder);
     const sfcFiles = files.filter((file) => file.endsWith('.sfc'));
 
     if (sfcFiles.length > 0) {
@@ -33,7 +35,7 @@ const fileStorageAdapter = (options = {}) => {
     const fileEntries = await Promise.all(
       sfcFiles.map(async (fileName) => {
         console.log('[FileStorage]', `  → ${fileName}`);
-        const filePath = path.join(config.get('dataFolder'), fileName);
+        const filePath = path.join(dataFolder, fileName);
         const fileContent = await fsp.readFile(filePath);
         return { fileName, fileContent };
       }),
@@ -44,31 +46,34 @@ const fileStorageAdapter = (options = {}) => {
 
   const writeDataFile = async (collectionName, collectionData) => {
     try {
-      await ensureFolderExists(config.get('dataFolder'));
+      const { verbose, dataFolder } = config.getConfig();
 
-      if (config.get('verbose')) console.log('[FileStorage]', `Compress data before writing: ${collectionName}`);
+      await ensureFolderExists(dataFolder);
+
+      if (verbose) console.log('[FileStorage]', `Compress data before writing: ${collectionName}`);
       const { fileName, fileContent } = await preProcessChanges(collectionName, collectionData);
-      const tmpFilePath = path.join(config.get('dataFolder'), `${fileName}.tmp`);
-      const targetFilePath = path.join(config.get('dataFolder'), fileName);
+      const tmpFilePath = path.join(dataFolder, `${fileName}.tmp`);
+      const targetFilePath = path.join(dataFolder, fileName);
 
       if (collectionData.length === 0) {
-        if (config.get('verbose')) console.log('[FileStorage]', `Removing empty file: ${targetFilePath}`);
-        await tryDeleteFile(targetFilePath, config.get('verbose'));
+        if (verbose) console.log('[FileStorage]', `Removing empty file: ${targetFilePath}`);
+        await tryDeleteFile(targetFilePath, verbose);
         return;
       }
 
-      if (config.get('verbose')) console.log('[FileStorage]', `Writing data to temp file: ${tmpFilePath}`);
+      if (verbose) console.log('[FileStorage]', `Writing data to temp file: ${tmpFilePath}`);
       await fsp.writeFile(tmpFilePath, fileContent);
 
-      if (config.get('verbose')) console.log('[FileStorage]', `Move data to final file: ${targetFilePath}`);
+      if (verbose) console.log('[FileStorage]', `Move data to final file: ${targetFilePath}`);
       await fsp.rename(tmpFilePath, targetFilePath);
-      await tryDeleteFile(tmpFilePath, config.get('verbose'));
+      await tryDeleteFile(tmpFilePath, verbose);
     } catch (err) {
       console.error(`Failed to write ${collectionName}:`, err);
     }
   };
 
   const throttleWrite = (collectionName, collectionData) => {
+    const { throttle } = config.getConfig();
     pendingWrites[collectionName] = collectionData;
 
     if (!collectionThrottle[collectionName]) {
@@ -83,7 +88,7 @@ const fileStorageAdapter = (options = {}) => {
         if (pendingWrites[collectionName]) {
           throttleWrite(collectionName, pendingWrites[collectionName]);
         }
-      }, config.get('throttle'));
+      }, throttle);
     }
   };
 

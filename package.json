@@ -80,13 +80,13 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "archiver": "7",
     "benchmark": "^2.1.4",
     "blocked-at": "^1.2.0",
     "esbuild": "^0.28.1",
     "jest": "^30.4.2",
     "jest-esbuild": "^0.4.0",
-    "moment-timezone": "^0.6.2"
+    "moment-timezone": "^0.6.2",
+    "tar": "^7.5.17"
   },
   "dependencies": {}
 }
