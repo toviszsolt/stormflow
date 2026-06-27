@@ -12,7 +12,11 @@ describe('storage', () => {
   });
 
   afterAll(async () => {
-    await fsp.rm(testRoot, { recursive: true, force: true });
+    try {
+      await fsp.rm(testRoot, { recursive: true, force: true });
+    } catch (error) {
+      console.warn(`Warning: Could not remove test directory: ${error.message}`);
+    }
   });
 
   beforeEach(async () => {
@@ -48,7 +52,7 @@ describe('storage', () => {
 
     await initAdapters({ storageAdapter: mockStorageAdapter, backupAdapter: mockBackupAdapter });
 
-    await new Promise((resolve) => setTimeout(resolve, 100)); // Hosszabb várakozás
+    await new Promise((resolve) => setTimeout(resolve, 250)); // Hosszabb várakozás
 
     expect(mockBackupAdapter.backup).toHaveBeenCalled();
   });
