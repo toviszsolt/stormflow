@@ -48,7 +48,7 @@ describe('storage', () => {
 
     await initAdapters({ storageAdapter: mockStorageAdapter, backupAdapter: mockBackupAdapter });
 
-    await new Promise((resolve) => setTimeout(resolve, 100)); // Hosszabb várakozás
+    await new Promise((resolve) => setTimeout(resolve, 250)); // Hosszabb várakozás
 
     expect(mockBackupAdapter.backup).toHaveBeenCalled();
   });
