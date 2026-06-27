@@ -1,6 +1,6 @@
 import fsp from 'fs/promises';
 import path from 'path';
-import * as helpers from '../../src/storage/helpers.js';
+import * as helpers from '../../src/adapters/helpers.js';
 
 const testRoot = './test-data';
 const helperDir = path.join(testRoot, 'helpers');

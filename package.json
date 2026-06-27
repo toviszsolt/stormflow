@@ -1,6 +1,6 @@
 {
   "name": "stormflow",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "StormFlow is a versatile Node.js data management library designed for efficient data management.",
   "keywords": [
     "stormflow",
@@ -49,50 +49,44 @@
   "types": "./dist/stormflow.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/stormflow.d.ts",
       "import": "./dist/stormflow.js",
-      "require": "./dist/stormflow.cjs",
-      "types": "./dist/stormflow.d.ts"
+      "require": "./dist/stormflow.cjs"
     },
     "./adapters/fileStorageAdapter": {
+      "types": "./dist/adapters/fileStorageAdapter.d.ts",
       "import": "./dist/adapters/fileStorageAdapter.js",
-      "require": "./dist/adapters/fileStorageAdapter.cjs",
-      "types": "./dist/adapters/fileStorageAdapter.d.ts"
+      "require": "./dist/adapters/fileStorageAdapter.cjs"
     },
     "./adapters/fileBackupAdapter": {
+      "types": "./dist/adapters/fileBackupAdapter.d.ts",
       "import": "./dist/adapters/fileBackupAdapter.js",
-      "require": "./dist/adapters/fileBackupAdapter.cjs",
-      "types": "./dist/adapters/fileBackupAdapter.d.ts"
+      "require": "./dist/adapters/fileBackupAdapter.cjs"
     }
   },
   "files": [
     "dist/*"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
-    "watch": "rollup -c -w",
-    "test": "jest --coverage",
-    "report": "start coverage/lcov-report/index.html",
-    "build": "rollup -c",
-    "esbuild": "esbuild src/stormflow.js --bundle --platform=node --minify --target=node22 --outfile=stormflow-build.js --external:archiver"
+    "watch": "node build.js --watch",
+    "test": "jest --verbose",
+    "build": "jest --verbose && node build.js",
+    "coverage": "jest --collect-coverage",
+    "coverage:open": "(start ./coverage/lcov-report/index.html || open ./coverage/lcov-report/index.html || xdg-open ./coverage/lcov-report/index.html)"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.28.5",
-    "@rollup/plugin-commonjs": "^29.0.0",
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^16.0.3",
     "@types/jest": "^30.0.0",
-    "archiver": "^7.0.1",
+    "archiver": "7",
     "benchmark": "^2.1.4",
     "blocked-at": "^1.2.0",
     "esbuild": "^0.28.1",
-    "jest": "^30.2.0",
-    "moment-timezone": "^0.6.0",
-    "rollup": "^4.53.3",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-delete": "^3.0.2",
-    "rollup-plugin-terser": "^7.0.2"
+    "jest": "^30.4.2",
+    "jest-esbuild": "^0.4.0",
+    "moment-timezone": "^0.6.2"
   },
   "dependencies": {}
 }

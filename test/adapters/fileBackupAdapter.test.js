@@ -1,6 +1,6 @@
 import fsp from 'fs/promises';
 import path from 'path';
-import fileBackupAdapter from '../../src/storage/fileBackupAdapter.js';
+import fileBackupAdapter from '../../src/adapters/fileBackupAdapter.js';
 
 const testRoot = './test-data';
 const backupDir = path.join(testRoot, 'backup');
