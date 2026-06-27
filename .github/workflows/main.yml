@@ -29,10 +29,6 @@ jobs:
           yarn install --ignore-engines
       - name: Build
         run: yarn build
-      - name: Fix test directory permissions
-        run: |
-          mkdir -p test-data
-          chmod -R 777 test-data
       - name: Test
         run: yarn test
       - name: Upload coverage reports to Codecov

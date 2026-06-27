@@ -1,5 +1,6 @@
 /coverage/
 /data*/
+/test*/
 /dist/
 /node_modules/
 /samples/

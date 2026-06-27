@@ -3,7 +3,7 @@ import path from 'path';
 import fileStorageAdapter from '../../src/adapters/fileStorageAdapter.js';
 import { storageController } from '../../src/adapters/storageController.js';
 
-const testRoot = './test-data';
+const testRoot = './test-storage';
 const storageDir = path.join(testRoot, 'storage');
 
 describe('fileStorageAdapter', () => {

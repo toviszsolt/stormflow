@@ -2,7 +2,7 @@ import fsp from 'fs/promises';
 import path from 'path';
 import fileBackupAdapter from '../../src/adapters/fileBackupAdapter.js';
 
-const testRoot = './test-data';
+const testRoot = './test-backup';
 const backupDir = path.join(testRoot, 'backup');
 
 const randomFolderName = () => `test-backup-${Math.random().toString(36).substring(2, 15)}`;
@@ -35,9 +35,7 @@ describe('fileBackupAdapter', () => {
     const result = await adapter.init();
     expect(result).toHaveProperty('backupInterval');
   });
-});
 
-describe('fileBackupAdapter edge cases', () => {
   it('should skip backup if data is empty', async () => {
     const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
@@ -68,9 +66,7 @@ describe('fileBackupAdapter edge cases', () => {
     for (const f of files) await fsp.unlink(path.join(backupFolder, f));
     await fsp.rmdir(backupFolder);
   });
-});
 
-describe('fileBackupAdapter edge/error coverage', () => {
   it('should catch error in backup (simulate archiver error)', async () => {
     const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
@@ -81,27 +77,6 @@ describe('fileBackupAdapter edge/error coverage', () => {
     const backupFolder = path.join(testRoot, randomFolderName());
     const adapter = fileBackupAdapter({ backupFolder });
     await expect(adapter.backup({ test: [{ _id: 1 }] })).resolves.toBeUndefined();
-  });
-});
-
-describe('fileBackupAdapter', () => {
-  const testRoot = './test-data';
-  const backupDir = path.join(testRoot, 'backup');
-
-  beforeAll(async () => {
-    await fsp.mkdir(testRoot, { recursive: true });
-  });
-
-  afterAll(async () => {
-    await fsp.rm(testRoot, { recursive: true, force: true });
-  });
-
-  beforeEach(async () => {
-    await fsp.mkdir(backupDir, { recursive: true });
-  });
-
-  afterEach(async () => {
-    await fsp.rm(backupDir, { recursive: true, force: true });
   });
 
   it('should handle backup process with mock files', async () => {
