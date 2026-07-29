@@ -86,15 +86,15 @@
     "esbuild": "^0.28.1",
     "jest": "^30.4.2",
     "jest-esbuild": "^0.4.0",
-    "moment-timezone": "^0.6.2",
-    "tar": "^7.5.17"
+    "moment-timezone": "^0.6.3",
+    "tar": "^7.5.22"
   },
   "overrides": {
-    "picomatch": "^4.0.4",
-    "minimatch": "^10.2.5"
+    "picomatch": "^4.0.5",
+    "minimatch": "^10.2.6"
   },
   "resolutions": {
-    "picomatch": "^4.0.4",
-    "minimatch": "^10.2.5"
+    "picomatch": "^4.0.5",
+    "minimatch": "^10.2.6"
   }
 }
